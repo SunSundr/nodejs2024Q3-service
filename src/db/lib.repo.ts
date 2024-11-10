@@ -40,20 +40,20 @@ export class InMemoryLibRepository implements ILibRepository {
     }
   }
 
-  async save<T = MapsType>(obj: MapsType, type: MapsName): Promise<T> {
+  async save(obj: MapsType, type: MapsName): Promise<MapsType> {
     const map = await this.getMap(type);
     if (map) map.set(obj.id, obj);
-    return obj as T;
+    return obj as MapsType;
   }
 
-  async get<T = MapsType>(id: UUID, type: MapsName): Promise<T | undefined> {
+  async get(id: UUID, type: MapsName): Promise<MapsType | undefined> {
     const map = await this.getMap(type);
-    return map.get(id) as T | undefined;
+    return map.get(id);
   }
 
-  async getAll<T = MapsType>(type: MapsName): Promise<T[] | undefined> {
+  async getAll(type: MapsName): Promise<MapsType[] | undefined> {
     const map = await this.getMap(type);
-    return map ? (Array.from(map.values()) as T[]) : undefined;
+    return map ? (Array.from(map.values()) as MapsType[]) : undefined;
   }
 
   async delete(id: UUID, type: MapsName): Promise<void> {

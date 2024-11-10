@@ -60,7 +60,7 @@ export class LibService {
       createDto,
     );
     if (!newEntity) return null;
-    return await this.libRepository.save<SupportedType>(
+    return await this.libRepository.save(
       newEntity,
       LibService.typeNameByOwner(owner),
     );
@@ -71,9 +71,9 @@ export class LibService {
     obj: SupportedType,
     updateDto: SupportedDtos,
   ): Promise<SupportedType> {
-    //obj.updateFromDto(updateDto as any);
-    LibService.callByOwner(owner, obj.updateFromDto, updateDto);
-    return await this.libRepository.save<SupportedType>(
+    // obj.updateFromDto(updateDto as any);
+    LibService.callByOwner(owner, obj.updateFromDto.bind(obj), updateDto);
+    return await this.libRepository.save(
       obj,
       LibService.typeNameByOwner(owner),
     );
@@ -87,7 +87,7 @@ export class LibService {
     owner: SupportedModels,
     id: UUID,
   ): Promise<SupportedType | null> {
-    const entity = await this.libRepository.get<SupportedType>(
+    const entity = await this.libRepository.get(
       id,
       LibService.typeNameByOwner(owner),
     );

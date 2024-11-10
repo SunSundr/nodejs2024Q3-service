@@ -163,6 +163,8 @@ describe('Tracks (e2e)', () => {
           albumId: createTrackDto.albumId,
         });
 
+        console.log(updateResponse.body);
+
       expect(updateResponse.statusCode).toBe(StatusCodes.OK);
 
       const {

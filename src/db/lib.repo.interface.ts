@@ -11,9 +11,9 @@ export type MapsType = Artist | Track | Album;
 export type LibDtoType = TrackDto | ArtistDto | AlbumDto;
 
 export interface ILibRepository {
-  get<T = MapsType>(id: UUID, type: MapsName): Promise<T | undefined>;
-  getAll<T = MapsType>(type: MapsName): Promise<T[] | undefined>;
-  save<T = MapsType>(obj: MapsType, type: MapsName): Promise<T>;
+  get(id: UUID, type: MapsName): Promise<MapsType | undefined>;
+  getAll(type: MapsName): Promise<MapsType[] | undefined>;
+  save(obj: MapsType, type: MapsName): Promise<MapsType>;
   delete(id: UUID, type: MapsName): Promise<void>;
 }
 

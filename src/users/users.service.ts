@@ -1,7 +1,7 @@
 import {
   Injectable,
   // NotFoundException,
-  ForbiddenException,
+  // ForbiddenException,
   Inject,
 } from '@nestjs/common';
 import { User } from './models/user.model';
@@ -30,7 +30,8 @@ export class UsersService {
   }
 
   async getById(id: UUID): Promise<User | null> {
-    return await this.userRepository.get(id);
+    const user = await this.userRepository.get(id);
+    return user ? user : null;
   }
 
   async delete(user: User): Promise<boolean> {

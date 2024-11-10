@@ -42,7 +42,6 @@ import { TrackDto } from '../common/dto/track.dto';
 import { ArtistDto } from '../common/dto/artist.dto';
 import { AlbumDto } from '../common/dto/album.dto';
 import { UUID } from 'crypto';
-// import { error } from 'console';
 
 // type InterceptorFactory = (dtoClass: {
 //   new (): SupportedDtos;

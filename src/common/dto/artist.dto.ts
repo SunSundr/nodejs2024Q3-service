@@ -2,6 +2,7 @@ import {
   // IsUUID,
   IsNotEmpty,
   IsString,
+  IsBoolean,
   // IsNumber,
   // Min,
 } from 'class-validator';
@@ -12,5 +13,6 @@ export class ArtistDto {
   @IsNotEmpty()
   name: string;
 
+  @IsBoolean()
   grammy?: boolean;
 }

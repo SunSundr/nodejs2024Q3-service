@@ -58,30 +58,26 @@ export class InMemoryLibRepository implements ILibRepository {
 
   async delete(id: UUID, type: MapsName): Promise<void> {
     const map = await this.getMap(type);
-    if (map) map.delete(id);
+    if (map) {
+      map.delete(id);
+      if (type === 'album') {
+        console.log('type === album');
+        this.tracks.forEach((track) => {
+          if (track.albumId === id) track.albumId = null;
+        });
+      } else if (type === 'artist') {
+        this.tracks.forEach((track) => {
+          if (track.artistId === id) {
+            track.artistId = null;
+          }
+        });
+        this.albums.forEach((album) => {
+          if (album.artistId === id) {
+            album.artistId = null;
+          }
+        });
+      }
+    }
     return;
   }
 }
-
-//------------------------------------------------------------------------------
-/* private async getMap2<T>(obj: T): Promise<Map<UUID, unknown> | undefined> {
-    switch (true) {
-      case obj instanceof Artist:
-        return this.artists;
-
-      case obj instanceof Track:
-        return this.tracks;
-
-      case obj instanceof Album:
-        return this.albums;
-
-      default:
-        return undefined;
-    }
-  } */
-
-/*   async save<T>(obj: T): Promise<T> {
-    const map = await this.getMap2<T>(obj);
-    if (map) map.set(obj['id'], obj);
-    return obj;
-  } */

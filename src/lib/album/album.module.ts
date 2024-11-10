@@ -1,14 +1,9 @@
 import { Module } from '@nestjs/common';
-import { LibService } from '../lib.service';
-import { InMemoryLibRepository } from '../../db/lib.repo';
 import { AlbumController } from './album.controller';
+import { LibServiceModule } from '../lib.service.module';
 
 @Module({
+  imports: [LibServiceModule],
   controllers: [AlbumController],
-  providers: [
-    LibService,
-    { provide: 'ILibRepository', useClass: InMemoryLibRepository },
-  ],
-  // exports: ['ILibRepository'],
 })
 export class AlbumModule {}

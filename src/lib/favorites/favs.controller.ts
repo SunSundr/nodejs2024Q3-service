@@ -18,9 +18,11 @@ import { Track } from 'src/common/models/track.model';
 import { Artist } from 'src/common/models/artist.model';
 import { Album } from 'src/common/models/album.model';
 import { MapsName, MapsType } from 'src/db/lib.repo.interface';
+import { ApiTags } from '@nestjs/swagger';
 
 type SupportedModels = typeof Track | typeof Artist | typeof Album;
 
+@ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
   constructor(readonly libService: LibService) {}

@@ -23,11 +23,13 @@ import { CreateUserDto, UpdateUserDto } from './dto/dto';
 import { UserByIdInterceptor } from '../common/interceptors/user-by-id.interceptor';
 import { UUID } from 'crypto';
 import { User } from '../users/models/user.model';
+import { ApiTags } from '@nestjs/swagger';
 
 export interface RequestWithUser extends Request {
   user: User;
 }
 
+@ApiTags('Users')
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

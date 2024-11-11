@@ -15,6 +15,7 @@ import {
   HttpCode,
   // ValidationPipe,
   HttpStatus,
+  // Body,
   // HttpException,
   // UseGuards,
   // NestInterceptor,
@@ -42,6 +43,7 @@ import { TrackDto } from '../common/dto/track.dto';
 import { ArtistDto } from '../common/dto/artist.dto';
 import { AlbumDto } from '../common/dto/album.dto';
 import { UUID } from 'crypto';
+import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 
 // type InterceptorFactory = (dtoClass: {
 //   new (): SupportedDtos;
@@ -127,22 +129,44 @@ export abstract class LibBaseController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all entities' })
+  @ApiResponse({ status: HttpStatus.OK })
   async getAll(): Promise<SupportedType[]> {
     return await this.libService.getAll(this.owner);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Get entity by ID' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request or ID is invalid (not uuid)',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
   async getById(@Request() req: ExpressRequest): Promise<SupportedType> {
     return (await this.requestValidate(req)).entity;
   }
 
   @Post()
+  @ApiOperation({ summary: 'Create new entity' })
+  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request, body is invalid',
+  })
   async create(@Request() req: ExpressRequest): Promise<SupportedType> {
     const { dto } = await this.requestValidate(req);
     return await this.libService.create(this.owner, dto);
   }
 
   @Put(':id')
+  @ApiOperation({ summary: 'Update entity' })
+  @ApiResponse({ status: HttpStatus.OK })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request or ID is invalid (not uuid)',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
   async update(@Request() req: ExpressRequest): Promise<SupportedType> {
     const { entity, dto } = await this.requestValidate(req);
     if (!dto) throw new BadRequestException('Body is invalid');
@@ -150,6 +174,13 @@ export abstract class LibBaseController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete entity' })
+  @ApiResponse({ status: HttpStatus.NO_CONTENT })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Bad request or ID is invalid (not uuid)',
+  })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: ExpressRequest): Promise<void> {
     const { entity } = await this.requestValidate(req);

@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
-import { BaseLibClass } from './_base.model';
-import { AlbumDto } from '../dto/album.dto';
+import { BaseLibClass } from '../lib.base.model';
+import { AlbumDto } from './album.dto';
 
 export class Album extends BaseLibClass {
   private constructor(

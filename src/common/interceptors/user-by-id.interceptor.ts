@@ -9,9 +9,9 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IUserRepository } from '../../users/repo/users.repo.interface';
+import { IUserRepository } from '../../db/users.repo.interface';
 import { isUUID, validate } from 'class-validator';
-import { UpdateUserDto } from '../../users/dto/dto';
+import { UpdateUserDto } from '../../users/user.dto';
 import { plainToClass } from 'class-transformer';
 
 @Injectable()

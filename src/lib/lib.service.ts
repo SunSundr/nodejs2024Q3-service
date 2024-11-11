@@ -1,36 +1,25 @@
-import {
-  Injectable,
-  // NotFoundException,
-  // ForbiddenException,
-  Inject,
-} from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { UUID } from 'crypto';
-import { Track } from '../common/models/track.model';
-import { Artist } from '../common/models/artist.model';
-import { Album } from '../common/models/album.model';
-// import { TrackDto } from '../common/dto/track.dto';
-// import { LibDtoType, MapsType, MapsName } from '../db/lib.repo.interface';
-import { MapsName } from '../db/lib.repo.interface';
+import { Track } from './track/track.model';
+import { Artist } from './artist/artist.model';
+import { Album } from './album/album.model';
+import { TrackDto } from './track/track.dto';
+import { ArtistDto } from './artist/artist.dto';
+import { AlbumDto } from './album/album.dto';
+import { LibNames } from '../db/lib.repo.interface';
 import { ILibRepository, FavoritesJSON } from '../db/lib.repo.interface';
-
-import { TrackDto } from '../common/dto/track.dto';
-import { ArtistDto } from '../common/dto/artist.dto';
-import { AlbumDto } from '../common/dto/album.dto';
-
-type SupportedModels = typeof Track | typeof Artist | typeof Album;
-type SupportedDtos = TrackDto | ArtistDto | AlbumDto;
-type SupportedType = Artist | Track | Album;
+import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
 
 @Injectable()
 export class LibService {
   constructor(@Inject('ILibRepository') private readonly libRepository: ILibRepository) {}
 
   static callByOwner(
-    owner: SupportedModels,
-    func: (..._: unknown[]) => SupportedType | void,
-    dto: SupportedDtos,
+    owner: LibModels,
+    func: (..._: unknown[]) => LibTypes | void,
+    dto: LibDtos,
     ...args: unknown[]
-  ): void | SupportedType {
+  ): void | LibTypes {
     switch (owner) {
       case Track:
         return func(dto as TrackDto, ...args);
@@ -43,37 +32,33 @@ export class LibService {
     }
   }
 
-  static typeNameByOwner(owner: SupportedModels): MapsName {
-    return owner.name.toLowerCase() as MapsName;
+  static typeNameByOwner(owner: LibModels): LibNames {
+    return owner.name.toLowerCase() as LibNames;
   }
 
-  async create(owner: SupportedModels, createDto: SupportedDtos): Promise<SupportedType | null> {
+  async create(owner: LibModels, createDto: LibDtos): Promise<LibTypes | null> {
     // const newEntity = owner.createFromDto(createDto as any);
     const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto);
     if (!newEntity) return null;
     return await this.libRepository.save(newEntity, LibService.typeNameByOwner(owner));
   }
 
-  async update(
-    owner: SupportedModels,
-    obj: SupportedType,
-    updateDto: SupportedDtos,
-  ): Promise<SupportedType> {
+  async update(owner: LibModels, obj: LibTypes, updateDto: LibDtos): Promise<LibTypes> {
     // obj.updateFromDto(updateDto as any);
     LibService.callByOwner(owner, obj.updateFromDto.bind(obj), updateDto);
     return await this.libRepository.save(obj, LibService.typeNameByOwner(owner));
   }
 
-  async getAll(owner: SupportedModels): Promise<SupportedType[]> {
+  async getAll(owner: LibModels): Promise<LibTypes[]> {
     return await this.libRepository.getAll(LibService.typeNameByOwner(owner));
   }
 
-  async getById(owner: SupportedModels, id: UUID): Promise<SupportedType | null> {
+  async getById(owner: LibModels, id: UUID): Promise<LibTypes | null> {
     const entity = await this.libRepository.get(id, LibService.typeNameByOwner(owner));
     return entity ? entity : null;
   }
 
-  async delete(owner: SupportedModels, obj: SupportedType): Promise<void> {
+  async delete(owner: LibModels, obj: LibTypes): Promise<void> {
     await this.libRepository.delete(obj.id, LibService.typeNameByOwner(owner));
   }
 
@@ -81,7 +66,7 @@ export class LibService {
     return await this.libRepository.getFavs(userId);
   }
 
-  async applyFavs(id: UUID, type: MapsName, add: boolean): Promise<void> {
+  async applyFavs(id: UUID, type: LibNames, add: boolean): Promise<void> {
     if (add) {
       await this.libRepository.addFavs(id, type);
     } else {

@@ -14,23 +14,21 @@ import {
 import { UUID } from 'crypto';
 
 import { LibService } from '../lib.service';
-import { Track } from 'src/common/models/track.model';
-import { Artist } from 'src/common/models/artist.model';
-import { Album } from 'src/common/models/album.model';
-import { MapsName, MapsType } from 'src/db/lib.repo.interface';
+import { Track } from 'src/lib/track/track.model';
+import { Artist } from 'src/lib/artist/artist.model';
+import { Album } from 'src/lib/album/album.model';
+import { LibNames, LibTypes, LibModels } from 'src/db/lib.repo.interface';
 import { ApiTags } from '@nestjs/swagger';
-
-type SupportedModels = typeof Track | typeof Artist | typeof Album;
 
 @ApiTags('Favorites')
 @Controller('favs')
 export class FavoritesController {
   constructor(readonly libService: LibService) {}
 
-  private async setFavs(owner: SupportedModels, id: UUID, add: boolean): Promise<MapsType | null> {
+  private async setFavs(owner: LibModels, id: UUID, add: boolean): Promise<LibTypes | null> {
     const entity = await this.libService.getById(owner, id);
     if (!entity) throw new UnprocessableEntityException(`${owner.name} not found`);
-    await this.libService.applyFavs(id, owner.name.toLowerCase() as MapsName, add);
+    await this.libService.applyFavs(id, owner.name.toLowerCase() as LibNames, add);
     return entity;
   }
 

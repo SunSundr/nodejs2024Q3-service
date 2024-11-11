@@ -1,9 +1,7 @@
-// src/users/repo/users.repo.ts
 import { Injectable } from '@nestjs/common';
-import { User } from '../models/user.model';
-import { IUserRepository } from './users.repo.interface';
-// import { UserIdParamDto } from '../dto/dto';
 import { UUID } from 'crypto';
+import { User } from '../users/user.model';
+import { IUserRepository } from './users.repo.interface';
 
 @Injectable()
 export class InMemoryUserRepository implements IUserRepository {

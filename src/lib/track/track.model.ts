@@ -1,6 +1,6 @@
 import { UUID } from 'crypto';
-import { BaseLibClass } from './_base.model';
-import { TrackDto } from '../dto/track.dto';
+import { BaseLibClass } from '../lib.base.model';
+import { TrackDto } from './track.dto';
 
 export class Track extends BaseLibClass {
   private constructor(

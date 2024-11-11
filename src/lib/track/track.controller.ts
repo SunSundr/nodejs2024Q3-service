@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { Track } from '../../common/models/track.model';
-import { TrackDto } from '../../common/dto/track.dto';
+import { Track } from './track.model';
+import { TrackDto } from './track.dto';
 import { LibBaseController } from '../lib.base.controller';
 import { LibService } from '../lib.service';
 import { ApiTags } from '@nestjs/swagger';

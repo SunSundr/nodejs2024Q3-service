@@ -19,10 +19,10 @@ import {
 } from '@nestjs/common';
 // import { Request } from 'express';
 import { UsersService } from './users.service';
-import { CreateUserDto, UpdateUserDto } from './dto/dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserByIdInterceptor } from '../common/interceptors/user-by-id.interceptor';
 import { UUID } from 'crypto';
-import { User } from '../users/models/user.model';
+import { User } from './user.model';
 import { ApiTags } from '@nestjs/swagger';
 
 export interface RequestWithUser extends Request {

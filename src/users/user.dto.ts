@@ -1,5 +1,4 @@
 import {
-  // IsUUID,
   IsNotEmpty,
   IsString,
   ValidateIf,
@@ -7,7 +6,6 @@ import {
   MaxLength,
   // Matches,
 } from 'class-validator';
-// import { UUID } from 'crypto';
 
 export class CreateUserDto {
   @IsString()

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { Album } from 'src/common/models/album.model';
-import { AlbumDto } from 'src/common/dto/album.dto';
+import { Album } from 'src/lib/album/album.model';
+import { AlbumDto } from 'src/lib/album/album.dto';
 import { LibBaseController } from '../lib.base.controller';
 import { LibService } from '../lib.service';
 import { ApiTags } from '@nestjs/swagger';

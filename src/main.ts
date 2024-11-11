@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Request, Response, NextFunction } from 'express';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
-import { runSwagger } from './common/utils/runSwagger';
+import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
 

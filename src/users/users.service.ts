@@ -1,13 +1,8 @@
-import {
-  Injectable,
-  // NotFoundException,
-  // ForbiddenException,
-  Inject,
-} from '@nestjs/common';
-import { User } from './models/user.model';
-import { IUserRepository } from './repo/users.repo.interface';
-import { CreateUserDto, UpdateUserDto } from './dto/dto';
+import { Injectable, Inject } from '@nestjs/common';
 import { UUID } from 'crypto';
+import { IUserRepository } from '../db/users.repo.interface';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { User } from './user.model';
 
 @Injectable()
 export class UsersService {

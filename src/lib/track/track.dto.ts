@@ -6,15 +6,21 @@ import {
   Min,
 } from 'class-validator';
 import { UUID } from 'crypto';
+import { IsUUIDOrNull } from '../../common/utils/IsUUIDOrNull.decorator';
 
-export class AlbumDto {
+export class TrackDto {
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @IsNumber()
-  @Min(1000)
-  year: number;
+  @Min(0)
+  @IsNotEmpty()
+  duration: number;
 
+  @IsUUIDOrNull()
   artistId: UUID | null;
+
+  @IsUUIDOrNull()
+  albumId: UUID | null;
 }

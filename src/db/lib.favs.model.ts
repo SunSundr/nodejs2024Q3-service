@@ -1,9 +1,8 @@
-// import { BaseLibClass } from 'src/common/models/_base.model';
 import { UUID } from 'crypto';
-import { Album } from 'src/common/models/album.model';
-import { Artist } from 'src/common/models/artist.model';
-import { Track } from 'src/common/models/track.model';
-import { MapsType, FavoritesJSON } from './lib.repo.interface';
+import { Album } from 'src/lib/album/album.model';
+import { Artist } from 'src/lib/artist/artist.model';
+import { Track } from 'src/lib/track/track.model';
+import { LibTypes, FavoritesJSON } from './lib.repo.interface';
 
 export class Favorites {
   constructor(
@@ -12,7 +11,7 @@ export class Favorites {
     private readonly albums: Map<UUID, Album>,
   ) {}
 
-  private async filter(map: Map<UUID, MapsType>, _userId: UUID | null): Promise<MapsType[]> {
+  private async filter(map: Map<UUID, LibTypes>, _userId: UUID | null): Promise<LibTypes[]> {
     // entity.favorite && entity.id === _userId
     return Array.from(map.values()).filter((entity) => entity.favorite);
   }
@@ -25,12 +24,12 @@ export class Favorites {
     };
   }
 
-  async add(entity: MapsType, map: Map<UUID, MapsType>): Promise<void> {
+  async add(entity: LibTypes, map: Map<UUID, LibTypes>): Promise<void> {
     entity.favorite = true;
     map.set(entity.id, entity);
   }
 
-  async remove(entity: MapsType, map: Map<UUID, MapsType>): Promise<void> {
+  async remove(entity: LibTypes, map: Map<UUID, LibTypes>): Promise<void> {
     entity.favorite = false;
     map.set(entity.id, entity);
   }

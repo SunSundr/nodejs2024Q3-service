@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
-import { Track } from '../common/models/track.model';
-import { Artist } from '../common/models/artist.model';
-import { Album } from '../common/models/album.model';
-import { ILibRepository, MapsName, MapsType, FavoritesJSON } from './lib.repo.interface';
+import { Track } from '../lib/track/track.model';
+import { Artist } from '../lib/artist/artist.model';
+import { Album } from '../lib/album/album.model';
+import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
 import { Favorites } from './lib.favs.model';
-// import { UserIdParamDto } from '../dto/dto';
 
 @Injectable()
 export class InMemoryLibRepository implements ILibRepository {
@@ -14,7 +13,7 @@ export class InMemoryLibRepository implements ILibRepository {
   private readonly albums = new Map<UUID, Album>();
   private readonly favorites = new Favorites(this.artists, this.tracks, this.albums);
 
-  private async getMap(type: MapsName): Promise<Map<UUID, MapsType> | undefined> {
+  private async getMap(type: LibNames): Promise<Map<UUID, LibTypes> | undefined> {
     switch (type) {
       case 'artist':
         return this.artists;
@@ -30,23 +29,23 @@ export class InMemoryLibRepository implements ILibRepository {
     }
   }
 
-  async save(obj: MapsType, type: MapsName): Promise<MapsType> {
+  async save(obj: LibTypes, type: LibNames): Promise<LibTypes> {
     const map = await this.getMap(type);
     if (map) map.set(obj.id, obj);
-    return obj as MapsType;
+    return obj as LibTypes;
   }
 
-  async get(id: UUID, type: MapsName): Promise<MapsType | undefined> {
+  async get(id: UUID, type: LibNames): Promise<LibTypes | undefined> {
     const map = await this.getMap(type);
     return map.get(id);
   }
 
-  async getAll(type: MapsName): Promise<MapsType[] | undefined> {
+  async getAll(type: LibNames): Promise<LibTypes[] | undefined> {
     const map = await this.getMap(type);
-    return map ? (Array.from(map.values()) as MapsType[]) : undefined;
+    return map ? (Array.from(map.values()) as LibTypes[]) : undefined;
   }
 
-  async delete(id: UUID, type: MapsName): Promise<void> {
+  async delete(id: UUID, type: LibNames): Promise<void> {
     const map = await this.getMap(type);
     if (map) {
       map.delete(id);
@@ -72,8 +71,8 @@ export class InMemoryLibRepository implements ILibRepository {
 
   private async getFavsData(
     id: UUID,
-    type: MapsName,
-  ): Promise<{ map?: Map<UUID, MapsType>; entity?: MapsType }> {
+    type: LibNames,
+  ): Promise<{ map?: Map<UUID, LibTypes>; entity?: LibTypes }> {
     const map = await this.getMap(type);
     if (!map) return {};
     const entity = map.get(id);
@@ -85,13 +84,13 @@ export class InMemoryLibRepository implements ILibRepository {
     return await this.favorites.getAll(userId);
   }
 
-  async addFavs(id: UUID, type: MapsName): Promise<void> {
+  async addFavs(id: UUID, type: LibNames): Promise<void> {
     const { entity, map } = await this.getFavsData(id, type);
     if (!entity || !map) return;
     await this.favorites.add(entity, map);
   }
 
-  async removeFavs(id: UUID, type: MapsName): Promise<void> {
+  async removeFavs(id: UUID, type: LibNames): Promise<void> {
     const { entity, map } = await this.getFavsData(id, type);
     if (!entity || !map) return;
     await this.favorites.remove(entity, map);

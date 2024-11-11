@@ -1,5 +1,4 @@
-// import { UUID } from 'crypto';
-import { CreateUserDto, UpdateUserDto } from '../dto/dto';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { UUID } from 'crypto';
 

@@ -1,85 +1,31 @@
 import {
-  // Controller,
   Get,
   Post,
   Put,
   Delete,
-  // Param,
-  // Body,
   Request,
-  // ParseUUIDPipe,
   NotFoundException,
-  // ForbiddenException,
   BadRequestException,
-  // UsePipes,
   HttpCode,
-  // ValidationPipe,
   HttpStatus,
-  // Body,
-  // HttpException,
-  // UseGuards,
-  // NestInterceptor,
-  //UseInterceptors,
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-
-// import { Request } from 'express';
-// import { Request } from '@nestjs/common';
-
-import { LibService } from './lib.service';
-// import { CreateUserDto, UpdateUserDto } from './dto/dto';
-// import { UserByIdInterceptor } from '../common/interceptors/user-by-id.interceptor';
-// import { UUID } from 'crypto';
-// import { User } from '../users/models/user.model';
-
-// import { createEntityInterceptor } from './entity.interceptor';
-import { isUUID, validate, ValidationError } from 'class-validator';
 import { plainToClass } from 'class-transformer';
-
-import { Track } from '../common/models/track.model';
-import { Artist } from '../common/models/artist.model';
-import { Album } from '../common/models/album.model';
-import { TrackDto } from '../common/dto/track.dto';
-import { ArtistDto } from '../common/dto/artist.dto';
-import { AlbumDto } from '../common/dto/album.dto';
-import { UUID } from 'crypto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-
-// type InterceptorFactory = (dtoClass: {
-//   new (): SupportedDtos;
-// }) => NestInterceptor;
-// readonly entityInterceptor: NestInterceptor;
-
-type SupportedModels = typeof Track | typeof Artist | typeof Album;
-type SupportedDtos = TrackDto | ArtistDto | AlbumDto;
-type SupportedType = Artist | Track | Album;
-
-// export interface RequestWithEntity extends ExpressRequest {
-//   entity: SupportedType;
-// }
-
-// function createInterceptorInstance(
-//   controller: LibBaseController,
-// ): NestInterceptor {
-//   console.log('controller', this);
-//   const interceptorClass = controller.getInterceptor();
-
-//   // if (typeof interceptorClass === 'function') {
-//   //   return new interceptorClass(); //  создаем экземпляр, если это класс
-//   // }
-
-//   return interceptorClass; // возвращаем как есть, если уже экземпляр
-// }
+import { UUID } from 'crypto';
+import { LibService } from './lib.service';
+import { isUUID, validate, ValidationError } from 'class-validator';
+import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
 
 interface ValidateResult {
-  entity: SupportedType | null;
-  dto?: SupportedDtos;
+  entity: LibTypes | null;
+  dto?: LibDtos;
   errors?: ValidationError[];
 }
 
 export abstract class LibBaseController {
-  protected readonly owner: SupportedModels;
-  protected readonly dtoClass: { new (): SupportedDtos };
+  protected readonly owner: LibModels;
+  protected readonly dtoClass: { new (): LibDtos };
 
   constructor(protected readonly libService: LibService) {}
 
@@ -90,7 +36,7 @@ export abstract class LibBaseController {
       throw new BadRequestException('Invalid UUID');
     }
 
-    let dto: SupportedDtos | undefined;
+    let dto: LibDtos | undefined;
 
     if (req.method !== 'DELETE' && req.method !== 'GET') {
       dto = plainToClass(this.dtoClass, req.body);
@@ -113,7 +59,7 @@ export abstract class LibBaseController {
       }
     }
 
-    let entity: SupportedType | null;
+    let entity: LibTypes | null;
 
     if (req.method !== 'POST') {
       entity = await this.libService.getById(this.owner, id);
@@ -131,7 +77,7 @@ export abstract class LibBaseController {
   @Get()
   @ApiOperation({ summary: 'Get all entities' })
   @ApiResponse({ status: HttpStatus.OK })
-  async getAll(): Promise<SupportedType[]> {
+  async getAll(): Promise<LibTypes[]> {
     return await this.libService.getAll(this.owner);
   }
 
@@ -143,7 +89,7 @@ export abstract class LibBaseController {
     description: 'Bad request or ID is invalid (not uuid)',
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
-  async getById(@Request() req: ExpressRequest): Promise<SupportedType> {
+  async getById(@Request() req: ExpressRequest): Promise<LibTypes> {
     return (await this.requestValidate(req)).entity;
   }
 
@@ -154,7 +100,7 @@ export abstract class LibBaseController {
     status: HttpStatus.BAD_REQUEST,
     description: 'Bad request, body is invalid',
   })
-  async create(@Request() req: ExpressRequest): Promise<SupportedType> {
+  async create(@Request() req: ExpressRequest): Promise<LibTypes> {
     const { dto } = await this.requestValidate(req);
     return await this.libService.create(this.owner, dto);
   }
@@ -167,7 +113,7 @@ export abstract class LibBaseController {
     description: 'Bad request or ID is invalid (not uuid)',
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
-  async update(@Request() req: ExpressRequest): Promise<SupportedType> {
+  async update(@Request() req: ExpressRequest): Promise<LibTypes> {
     const { entity, dto } = await this.requestValidate(req);
     if (!dto) throw new BadRequestException('Body is invalid');
     return await this.libService.update(this.owner, entity, dto);

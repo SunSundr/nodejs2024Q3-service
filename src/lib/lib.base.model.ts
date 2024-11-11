@@ -1,5 +1,5 @@
 import { UUID } from 'crypto';
-import { serialize } from '../utils/serialize';
+import { serialize } from '../common/utils/serialize';
 
 export abstract class BaseLibClass {
   public id: UUID;

@@ -3,6 +3,7 @@ import {
   Post,
   Put,
   Delete,
+  Body,
   Request,
   NotFoundException,
   BadRequestException,
@@ -11,11 +12,12 @@ import {
 } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
 import { plainToClass } from 'class-transformer';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { UUID } from 'crypto';
 import { LibService } from './lib.service';
 import { isUUID, validate, ValidationError } from 'class-validator';
 import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
+import { UniversalDTO } from './lib.base.dto';
 
 interface ValidateResult {
   entity: LibTypes | null;
@@ -83,50 +85,61 @@ export abstract class LibBaseController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get entity by ID' })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiParam({ name: 'id', description: 'Entity ID (UUID)', type: String })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Entity found', type: 'LibTypes' })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Bad request or ID is invalid (not uuid)',
+    description: 'Bad request or ID is invalid (not UUID)',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
   async getById(@Request() req: ExpressRequest): Promise<LibTypes> {
     return (await this.requestValidate(req)).entity;
   }
 
   @Post()
   @ApiOperation({ summary: 'Create new entity' })
-  @ApiResponse({ status: HttpStatus.CREATED })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Entity successfully created',
+    type: UniversalDTO,
+  })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Bad request, body is invalid',
+    description: 'Bad request, body is invalid or missing required fields',
   })
-  async create(@Request() req: ExpressRequest): Promise<LibTypes> {
+  async create(@Request() req: ExpressRequest, @Body() _: UniversalDTO): Promise<LibTypes> {
     const { dto } = await this.requestValidate(req);
     return await this.libService.create(this.owner, dto);
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Update entity' })
-  @ApiResponse({ status: HttpStatus.OK })
+  @ApiOperation({ summary: 'Update entity by ID' })
+  @ApiParam({ name: 'id', description: 'Entity ID (UUID)', type: String })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Entity successfully updated',
+    type: UniversalDTO,
+  })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Bad request or ID is invalid (not uuid)',
+    description: 'Bad request or ID is invalid (not UUID)',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
-  async update(@Request() req: ExpressRequest): Promise<LibTypes> {
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
+  async update(@Request() req: ExpressRequest, @Body() _: UniversalDTO): Promise<LibTypes> {
     const { entity, dto } = await this.requestValidate(req);
     if (!dto) throw new BadRequestException('Body is invalid');
     return await this.libService.update(this.owner, entity, dto);
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Delete entity' })
-  @ApiResponse({ status: HttpStatus.NO_CONTENT })
+  @ApiOperation({ summary: 'Delete entity by ID' })
+  @ApiParam({ name: 'id', description: 'Entity ID (UUID)', type: String })
+  @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'Entity successfully deleted' })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Bad request or ID is invalid (not uuid)',
+    description: 'Bad request or ID is invalid (not UUID)',
   })
-  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Not found entity with ID' })
+  @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: ExpressRequest): Promise<void> {
     const { entity } = await this.requestValidate(req);

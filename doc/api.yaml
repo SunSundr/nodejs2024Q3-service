@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: Home Library Service
-  description: Home music library service
+  description: Home music library service API
   version: 1.0.0
 
 components:

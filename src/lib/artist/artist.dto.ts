@@ -1,10 +1,7 @@
-import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
+import { IsBoolean } from 'class-validator';
+import { LibBaseDto } from '../lib.base.dto';
 
-export class ArtistDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
+export class ArtistDto extends LibBaseDto {
   @IsBoolean()
   grammy?: boolean;
 }

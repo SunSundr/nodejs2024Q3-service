@@ -6,10 +6,16 @@ import { TrackDto } from '../lib/track/track.dto';
 import { ArtistDto } from '../lib/artist/artist.dto';
 import { AlbumDto } from '../lib/album/album.dto';
 
-export type LibNames = 'artist' | 'track' | 'album';
-export type LibModels = typeof Track | typeof Artist | typeof Album;
-export type LibDtos = TrackDto | ArtistDto | AlbumDto;
-export type LibTypes = Artist | Track | Album;
+type LibMap = {
+  artist: { model: typeof Artist; dto: ArtistDto; type: Artist };
+  track: { model: typeof Track; dto: TrackDto; type: Track };
+  album: { model: typeof Album; dto: AlbumDto; type: Album };
+};
+
+export type LibNames = keyof LibMap;
+export type LibModels<T extends LibNames = LibNames> = LibMap[T]['model'];
+export type LibDtos<T extends LibNames = LibNames> = LibMap[T]['dto'];
+export type LibTypes<T extends LibNames = LibNames> = LibMap[T]['type'];
 
 export interface ILibRepository {
   get(id: UUID, type: LibNames): Promise<LibTypes | undefined>;

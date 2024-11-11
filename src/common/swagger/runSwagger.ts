@@ -12,9 +12,8 @@ export function runSwagger(app: INestApplication): void {
   } else {
     const config = new DocumentBuilder()
       .setTitle(APP_NAME)
-      .setDescription('Home Library Service API')
-      .setVersion('1.0')
-      .addTag('Home Library')
+      .setDescription('Home music library service API')
+      .setVersion('1.0.0')
       .build();
     document = SwaggerModule.createDocument(app, config);
   }

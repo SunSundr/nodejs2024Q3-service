@@ -1,18 +1,9 @@
-import {
-  // IsUUID,
-  IsNotEmpty,
-  IsString,
-  IsNumber,
-  Min,
-} from 'class-validator';
+import { IsNotEmpty, IsNumber, Min } from 'class-validator';
 import { UUID } from 'crypto';
 import { IsUUIDOrNull } from '../../common/utils/IsUUIDOrNull.decorator';
+import { LibBaseDto } from '../lib.base.dto';
 
-export class TrackDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
+export class TrackDto extends LibBaseDto {
   @IsNumber()
   @Min(0)
   @IsNotEmpty()

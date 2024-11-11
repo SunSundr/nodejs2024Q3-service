@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
+import { AppService } from './app.service';
 
 dotenv.config();
 
@@ -18,14 +19,16 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.use((_req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('Content-Type', 'application/json');
-    // res.setHeader('Content-Type', 'text/html');
+    res.setHeader('Content-Type', 'application/json'); // 'text/html'
     // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     // res.setHeader('Pragma', 'no-cache');
     // res.setHeader('Expires', '0');
     // res.setHeader('Surrogate-Control', 'no-store');
     next();
   });
+
+  const appService = app.get(AppService);
+  appService.setApp(app);
 
   try {
     runSwagger(app);

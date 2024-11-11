@@ -1,22 +1,22 @@
 import { CreateUserDto, UpdateUserDto } from './user.dto';
-import { v4 as uuidv4 } from 'uuid';
 import { UUID } from 'crypto';
+import { serialize } from 'src/common/utils/serialize';
 
 export class User {
   readonly id: UUID;
   login: string;
-  password: string;
+  private password: string;
   version: number;
   readonly createdAt: number;
   updatedAt: number;
 
   private constructor(login: string, password: string) {
-    this.id = uuidv4() as UUID;
+    this.id = crypto.randomUUID() as UUID;
     this.login = login;
     this.password = password;
     this.version = 1;
     this.createdAt = Date.now();
-    this.updatedAt = Date.now();
+    this.updatedAt = this.createdAt;
   }
 
   static createFromDto(createDto: CreateUserDto): User {
@@ -30,14 +30,11 @@ export class User {
     this.updatedAt = Date.now();
   }
 
-  toJSON() {
-    const excludeProps = ['password'];
-    const json = Object.fromEntries(
-      Object.entries(this).filter(
-        ([key, value]) => typeof value !== 'function' && !excludeProps.includes(key),
-      ),
-    );
+  async checkPassword(newPassword: string): Promise<boolean> {
+    return this.password !== newPassword;
+  }
 
-    return json;
+  toJSON(): { [key: string]: unknown } {
+    return serialize(this, ['password']);
   }
 }

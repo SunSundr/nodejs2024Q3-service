@@ -2,7 +2,7 @@ import { UUID } from 'crypto';
 import { serialize } from '../common/utils/serialize';
 
 export abstract class BaseLibClass {
-  public id: UUID;
+  public readonly id: UUID;
   public favorite = false;
 
   constructor(public userId: string | null = null) {

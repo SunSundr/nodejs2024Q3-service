@@ -10,14 +10,11 @@ import {
   ParseUUIDPipe,
   NotFoundException,
   ForbiddenException,
-  // BadRequestException,
   UsePipes,
   HttpCode,
   ValidationPipe,
-  // UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-// import { Request } from 'express';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { UserByIdInterceptor } from '../common/interceptors/user-by-id.interceptor';
@@ -35,13 +32,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async getAllUsers() {
+  async getAllUsers(): Promise<User[]> {
     return await this.usersService.getAll();
   }
 
   @Get(':id')
   @UsePipes(new ValidationPipe())
-  async getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
+  async getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID): Promise<User> {
     const user = await this.usersService.getById(id);
     if (!user) throw new NotFoundException('User not found');
     return user;
@@ -49,24 +46,28 @@ export class UsersController {
 
   @Post()
   @UsePipes(new ValidationPipe())
-  async create(@Body() createUserDto: CreateUserDto) {
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
     const user = await this.usersService.createUser(createUserDto);
     return user;
   }
 
   @Put(':id')
   @UseInterceptors(UserByIdInterceptor)
-  updateUser(@Body() updateUserDto: UpdateUserDto, @Request() req: RequestWithUser) {
-    if (req.user.password === updateUserDto.newPassword)
+  async updateUser(
+    @Body() updateUserDto: UpdateUserDto,
+    @Request() req: RequestWithUser,
+  ): Promise<User> {
+    const { user } = req;
+    if (!(await user.checkPassword(updateUserDto.newPassword))) {
       throw new ForbiddenException('New password must be different from the current password');
-
-    return this.usersService.updateUser(req.user, updateUserDto);
+    }
+    return await this.usersService.updateUser(req.user, updateUserDto);
   }
 
   @Delete(':id')
   @UseInterceptors(UserByIdInterceptor)
   @HttpCode(204)
-  deleteUser(@Request() req: RequestWithUser) {
+  async deleteUser(@Request() req: RequestWithUser): Promise<boolean> {
     return this.usersService.delete(req.user);
   }
 }

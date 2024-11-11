@@ -102,6 +102,27 @@ components:
           items:
             $ref: '#/components/schemas/Track'
 paths:
+  /:
+    get:
+      tags:
+        - API Information
+      summary: Get API Endpoints Information
+      description: Returns information about all available API endpoints.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+              example:
+                ApiController:
+                  - "[GET] /api/doc/doc"
+                  - "[GET] /api/doc/doc-json"
   /user:
     get:
       tags:

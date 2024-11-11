@@ -16,14 +16,9 @@ import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class UserByIdInterceptor implements NestInterceptor {
-  constructor(
-    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
-  ) {}
+  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
 
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler,
-  ): Promise<Observable<unknown>> {
+  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();
     const id = request.params.id;
     const updateUserDto = plainToClass(UpdateUserDto, request.body);

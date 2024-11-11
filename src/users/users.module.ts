@@ -5,10 +5,7 @@ import { InMemoryUserRepository } from './repo/users.repo';
 
 @Module({
   controllers: [UsersController],
-  providers: [
-    UsersService,
-    { provide: 'IUserRepository', useClass: InMemoryUserRepository },
-  ],
-  // exports: ['IUserRepository'],
+  providers: [UsersService, { provide: 'IUserRepository', useClass: InMemoryUserRepository }],
+  // exports: [UsersService],
 })
 export class UsersModule {}

@@ -39,9 +39,7 @@ export class UsersController {
 
   @Get(':id')
   @UsePipes(new ValidationPipe())
-  async getUserById(
-    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
-  ) {
+  async getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
     const user = await this.usersService.getById(id);
     if (!user) throw new NotFoundException('User not found');
     return user;
@@ -56,14 +54,9 @@ export class UsersController {
 
   @Put(':id')
   @UseInterceptors(UserByIdInterceptor)
-  updateUser(
-    @Body() updateUserDto: UpdateUserDto,
-    @Request() req: RequestWithUser,
-  ) {
+  updateUser(@Body() updateUserDto: UpdateUserDto, @Request() req: RequestWithUser) {
     if (req.user.password === updateUserDto.newPassword)
-      throw new ForbiddenException(
-        'New password must be different from the current password',
-      );
+      throw new ForbiddenException('New password must be different from the current password');
 
     return this.usersService.updateUser(req.user, updateUserDto);
   }

@@ -11,9 +11,7 @@ import { UUID } from 'crypto';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @Inject('IUserRepository') private readonly userRepository: IUserRepository,
-  ) {}
+  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
 
   async createUser(createDto: CreateUserDto): Promise<User> {
     const newUser = User.createFromDto(createDto);

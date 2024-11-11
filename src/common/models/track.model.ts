@@ -26,12 +26,9 @@ export class Track extends BaseLibClass {
   updateFromDto(updateDto: TrackDto): void {
     Object.assign(this, {
       name: updateDto.name ?? this.name,
-      artistId:
-        updateDto.artistId !== undefined ? updateDto.artistId : this.artistId,
-      albumId:
-        updateDto.albumId !== undefined ? updateDto.albumId : this.albumId,
-      duration:
-        updateDto.duration !== undefined ? updateDto.duration : this.duration,
+      artistId: updateDto.artistId !== undefined ? updateDto.artistId : this.artistId,
+      albumId: updateDto.albumId !== undefined ? updateDto.albumId : this.albumId,
+      duration: updateDto.duration !== undefined ? updateDto.duration : this.duration,
     });
   }
 }

@@ -20,9 +20,7 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto {
-  @ValidateIf(
-    (dto) => dto.oldPassword === undefined && dto.newPassword === undefined,
-  )
+  @ValidateIf((dto) => dto.oldPassword === undefined && dto.newPassword === undefined)
   @IsNotEmpty({ message: 'Login cannot be empty' })
   @IsString()
   login?: string;

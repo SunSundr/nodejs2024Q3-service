@@ -11,10 +11,7 @@ export class Artist extends BaseLibClass {
     super(userId);
   }
 
-  static createFromDto(
-    createDto: ArtistDto,
-    userId: UUID | null = null,
-  ): Artist {
+  static createFromDto(createDto: ArtistDto, userId: UUID | null = null): Artist {
     return new Artist(userId, createDto.name, createDto.grammy);
   }
 

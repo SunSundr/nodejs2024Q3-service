@@ -13,20 +13,14 @@ export class Album extends BaseLibClass {
   }
 
   static createFromDto(createDto: AlbumDto, userId: UUID | null = null): Album {
-    return new Album(
-      userId,
-      createDto.name,
-      createDto.year,
-      createDto.artistId,
-    );
+    return new Album(userId, createDto.name, createDto.year, createDto.artistId);
   }
 
   updateFromDto(updateDto: AlbumDto): void {
     Object.assign(this, {
       name: updateDto.name ?? this.name,
       year: updateDto.year !== undefined ? updateDto.year : this.year,
-      artistId:
-        updateDto.artistId !== undefined ? updateDto.artistId : this.artistId,
+      artistId: updateDto.artistId !== undefined ? updateDto.artistId : this.artistId,
     });
   }
 }

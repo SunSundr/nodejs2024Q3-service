@@ -24,9 +24,7 @@ import { AlbumDto } from '../common/dto/album.dto';
 type SupportedDtos = TrackDto | ArtistDto | AlbumDto;
 type SupportedModels = typeof Track | typeof Artist | typeof Album;
 
-type InterceptorFactory = (dtoClass: {
-  new (): SupportedDtos;
-}) => NestInterceptor;
+type InterceptorFactory = (dtoClass: { new (): SupportedDtos }) => NestInterceptor;
 
 export function createEntityInterceptor(
   owner: SupportedModels,
@@ -36,10 +34,7 @@ export function createEntityInterceptor(
   class EntityInterceptor implements NestInterceptor {
     constructor(private readonly dtoClass: { new (): SupportedDtos }) {}
 
-    async intercept(
-      context: ExecutionContext,
-      next: CallHandler,
-    ): Promise<Observable<unknown>> {
+    async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
       const request = context.switchToHttp().getRequest();
       const { id } = request.params;
 

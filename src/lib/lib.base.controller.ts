@@ -81,9 +81,7 @@ export abstract class LibBaseController {
 
   constructor(protected readonly libService: LibService) {}
 
-  protected async requestValidate(
-    req: ExpressRequest,
-  ): Promise<ValidateResult> {
+  protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
     const { id } = req.params as { id: UUID };
 
     if (req.method !== 'POST' && !isUUID(id)) {
@@ -152,7 +150,7 @@ export abstract class LibBaseController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: ExpressRequest): Promise<void> {
     const { entity } = await this.requestValidate(req);
     return this.libService.delete(this.owner, entity);

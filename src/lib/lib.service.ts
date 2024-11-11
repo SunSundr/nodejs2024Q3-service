@@ -11,7 +11,7 @@ import { Album } from '../common/models/album.model';
 // import { TrackDto } from '../common/dto/track.dto';
 // import { LibDtoType, MapsType, MapsName } from '../db/lib.repo.interface';
 import { MapsName } from '../db/lib.repo.interface';
-import { ILibRepository } from '../db/lib.repo.interface';
+import { ILibRepository, FavoritesJSON } from '../db/lib.repo.interface';
 
 import { TrackDto } from '../common/dto/track.dto';
 import { ArtistDto } from '../common/dto/artist.dto';
@@ -23,9 +23,7 @@ type SupportedType = Artist | Track | Album;
 
 @Injectable()
 export class LibService {
-  constructor(
-    @Inject('ILibRepository') private readonly libRepository: ILibRepository,
-  ) {}
+  constructor(@Inject('ILibRepository') private readonly libRepository: ILibRepository) {}
 
   static callByOwner(
     owner: SupportedModels,
@@ -49,21 +47,11 @@ export class LibService {
     return owner.name.toLowerCase() as MapsName;
   }
 
-  async create(
-    owner: SupportedModels,
-    createDto: SupportedDtos,
-  ): Promise<SupportedType | null> {
+  async create(owner: SupportedModels, createDto: SupportedDtos): Promise<SupportedType | null> {
     // const newEntity = owner.createFromDto(createDto as any);
-    const newEntity = LibService.callByOwner(
-      owner,
-      owner.createFromDto,
-      createDto,
-    );
+    const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto);
     if (!newEntity) return null;
-    return await this.libRepository.save(
-      newEntity,
-      LibService.typeNameByOwner(owner),
-    );
+    return await this.libRepository.save(newEntity, LibService.typeNameByOwner(owner));
   }
 
   async update(
@@ -73,28 +61,31 @@ export class LibService {
   ): Promise<SupportedType> {
     // obj.updateFromDto(updateDto as any);
     LibService.callByOwner(owner, obj.updateFromDto.bind(obj), updateDto);
-    return await this.libRepository.save(
-      obj,
-      LibService.typeNameByOwner(owner),
-    );
+    return await this.libRepository.save(obj, LibService.typeNameByOwner(owner));
   }
 
   async getAll(owner: SupportedModels): Promise<SupportedType[]> {
     return await this.libRepository.getAll(LibService.typeNameByOwner(owner));
   }
 
-  async getById(
-    owner: SupportedModels,
-    id: UUID,
-  ): Promise<SupportedType | null> {
-    const entity = await this.libRepository.get(
-      id,
-      LibService.typeNameByOwner(owner),
-    );
+  async getById(owner: SupportedModels, id: UUID): Promise<SupportedType | null> {
+    const entity = await this.libRepository.get(id, LibService.typeNameByOwner(owner));
     return entity ? entity : null;
   }
 
   async delete(owner: SupportedModels, obj: SupportedType): Promise<void> {
     await this.libRepository.delete(obj.id, LibService.typeNameByOwner(owner));
+  }
+
+  async getAllFavs(userId: UUID | null): Promise<FavoritesJSON> {
+    return await this.libRepository.getFavs(userId);
+  }
+
+  async applyFavs(id: UUID, type: MapsName, add: boolean): Promise<void> {
+    if (add) {
+      await this.libRepository.addFavs(id, type);
+    } else {
+      await this.libRepository.removeFavs(id, type);
+    }
   }
 }

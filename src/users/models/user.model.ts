@@ -35,8 +35,7 @@ export class User {
     const excludeProps = ['password'];
     const json = Object.fromEntries(
       Object.entries(this).filter(
-        ([key, value]) =>
-          typeof value !== 'function' && !excludeProps.includes(key),
+        ([key, value]) => typeof value !== 'function' && !excludeProps.includes(key),
       ),
     );
 

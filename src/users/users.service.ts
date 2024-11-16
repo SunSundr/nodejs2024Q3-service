@@ -10,12 +10,12 @@ export class UsersService {
 
   async createUser(createDto: CreateUserDto): Promise<User> {
     const newUser = User.createFromDto(createDto);
-    return await this.userRepository.save(newUser);
+    return await this.userRepository.saveEntyty(newUser);
   }
 
   async updateUser(user: User, updateDto: UpdateUserDto): Promise<User> {
     user.updateFromDto(updateDto);
-    return await this.userRepository.save(user);
+    return await this.userRepository.updateEntity(user, updateDto);
   }
 
   async getAll(): Promise<User[]> {
@@ -23,12 +23,12 @@ export class UsersService {
   }
 
   async getById(id: UUID): Promise<User | null> {
-    const user = await this.userRepository.get(id);
+    const user = await this.userRepository.getById(id);
     return user ? user : null;
   }
 
   async delete(user: User): Promise<boolean> {
-    await this.userRepository.delete(user.id);
+    await this.userRepository.deleteByID(user.id);
     return true;
   }
 }

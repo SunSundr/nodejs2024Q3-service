@@ -6,11 +6,18 @@ import { ArtistModule } from './lib/artist/artist.module';
 import { TrackModule } from './lib/track/track.module';
 import { AlbumModule } from './lib/album/album.module';
 import { FavoritesModule } from './lib/favorites/favs.module';
-// import { LibModule } from './lib/lib.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dataSourceOptions } from './typeorm/data-source-options';
 
 @Module({
-  imports: [UsersModule, ArtistModule, TrackModule, AlbumModule, FavoritesModule],
-  // imports: [UsersModule, LibModule],
+  imports: [
+    TypeOrmModule.forRoot(dataSourceOptions),
+    UsersModule,
+    ArtistModule,
+    TrackModule,
+    AlbumModule,
+    FavoritesModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

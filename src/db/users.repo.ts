@@ -2,17 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
 import { IUserRepository } from './users.repo.interface';
+import { UpdateUserDto } from 'src/users/user.dto';
 
 @Injectable()
 export class InMemoryUserRepository implements IUserRepository {
   private users: Map<UUID, User> = new Map();
 
-  async save(user: User): Promise<User> {
+  async saveEntyty(user: User): Promise<User> {
     this.users.set(user.id, user);
     return user;
   }
 
-  async get(id: UUID): Promise<User | undefined> {
+  async updateEntity(user: User, _: UpdateUserDto): Promise<User> {
+    this.users.set(user.id, user);
+    return user;
+  }
+
+  async getById(id: UUID): Promise<User | undefined> {
+    return this.users.get(id);
+  }
+
+  async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
     return this.users.get(id);
   }
 
@@ -20,7 +30,7 @@ export class InMemoryUserRepository implements IUserRepository {
     return Array.from(this.users.values());
   }
 
-  async delete(id: UUID): Promise<void> {
+  async deleteByID(id: UUID): Promise<void> {
     this.users.delete(id);
     return;
   }

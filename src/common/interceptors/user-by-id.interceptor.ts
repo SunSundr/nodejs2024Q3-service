@@ -34,7 +34,11 @@ export class UserByIdInterceptor implements NestInterceptor {
       }
     }
 
-    const user = await this.userRepository.get(id);
+    const user =
+      (request.method === 'PUT')
+        ? await this.userRepository.getUserWithPasswordById(id)
+        : await this.userRepository.getById(id);
+
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }

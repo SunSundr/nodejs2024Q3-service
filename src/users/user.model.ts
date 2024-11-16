@@ -1,13 +1,43 @@
-import { CreateUserDto, UpdateUserDto } from './user.dto';
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  VersionColumn,
+} from 'typeorm';
 import { UUID } from 'crypto';
-import { serialize } from 'src/common/utils/serialize';
+import { CreateUserDto, UpdateUserDto } from './user.dto';
+import { serialize } from '../common/utils/serialize';
 
+@Entity()
 export class User {
+  @PrimaryColumn('uuid')
   readonly id: UUID;
+
+  @Column({ unique: true })
   login: string;
+
+  @Column({ select: false })
   private password: string;
+
+  @VersionColumn()
   version: number;
+
+  @Column({
+    type: 'bigint',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => Number(value),
+    },
+  })
   readonly createdAt: number;
+
+  @Column({
+    type: 'bigint',
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => Number(value),
+    },
+  })
   updatedAt: number;
 
   private constructor(login: string, password: string) {

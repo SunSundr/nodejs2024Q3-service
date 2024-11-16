@@ -1,17 +1,22 @@
-import { UUID } from 'crypto';
+import { Entity, Column } from 'typeorm';
 import { BaseLibClass } from '../lib.base.model';
 import { ArtistDto } from './artist.dto';
 
+@Entity()
 export class Artist extends BaseLibClass {
-  private constructor(
-    readonly userId: UUID | null,
-    public name: string,
-    public grammy: boolean = false,
-  ) {
+  @Column()
+  public name: string;
+
+  @Column({ default: false })
+  public grammy: boolean;
+
+  private constructor(userId: string | null, name: string, grammy: boolean = false) {
     super(userId);
+    this.name = name;
+    this.grammy = grammy;
   }
 
-  static createFromDto(createDto: ArtistDto, userId: UUID | null = null): Artist {
+  static createFromDto(createDto: ArtistDto, userId: string | null = null): Artist {
     return new Artist(userId, createDto.name, createDto.grammy);
   }
 

@@ -7,9 +7,7 @@ import { User } from '../users/user.model';
 import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([User]),
-  ],
+  imports: [TypeOrmModule.forFeature([User])],
   controllers: [UsersController],
   // providers: [UsersService, { provide: 'IUserRepository', useClass: InMemoryUserRepository }],
   providers: [UsersService, { provide: 'IUserRepository', useClass: UserTypeOrmRepository }],

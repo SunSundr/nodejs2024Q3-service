@@ -91,7 +91,7 @@ export class UsersController {
     @Request() req: RequestWithUser,
   ): Promise<User> {
     const { user } = req;
-    console.log('>>>', user.id,  user.checkPassword);
+    console.log('>>>', user.id, user.checkPassword);
     if (!(await user.checkPassword(updateUserDto.newPassword))) {
       throw new ForbiddenException('New password must be different from the current password');
     }

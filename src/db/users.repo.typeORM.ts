@@ -20,7 +20,7 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     const partialUser = { password: updateDto.newPassword } as Partial<User>;
     await this.userRepository.update(user.id, partialUser);
     return user;
-}
+  }
 
   async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
     return await this.userRepository

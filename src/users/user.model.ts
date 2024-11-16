@@ -1,9 +1,4 @@
-import {
-  Entity,
-  PrimaryColumn,
-  Column,
-  VersionColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, VersionColumn } from 'typeorm';
 import { UUID } from 'crypto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { serialize } from '../common/utils/serialize';

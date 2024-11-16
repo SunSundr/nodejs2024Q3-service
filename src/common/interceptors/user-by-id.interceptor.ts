@@ -35,7 +35,7 @@ export class UserByIdInterceptor implements NestInterceptor {
     }
 
     const user =
-      (request.method === 'PUT')
+      request.method === 'PUT'
         ? await this.userRepository.getUserWithPasswordById(id)
         : await this.userRepository.getById(id);
 

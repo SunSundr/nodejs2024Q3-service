@@ -4,38 +4,16 @@ import { Track } from '../lib/track/track.model';
 import { Artist } from '../lib/artist/artist.model';
 import { Album } from '../lib/album/album.model';
 import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
-import { Favorites } from './lib.favs.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class InMemoryLibRepository implements ILibRepository {
-  private readonly artists = new Map<UUID, Artist>();
-  private readonly tracks = new Map<UUID, Track>();
-  private readonly albums = new Map<UUID, Album>();
-  private readonly favorites = new Favorites(this.artists, this.tracks, this.albums);
-
+export class LibTypeOrmRepository implements ILibRepository {
   constructor(
     @InjectRepository(Artist) private readonly artistRepository: Repository<Artist>,
     @InjectRepository(Track) private readonly trackRepository: Repository<Track>,
     @InjectRepository(Album) private readonly albumRepository: Repository<Album>,
   ) {}
-
-  private async getMap(type: LibNames): Promise<Map<UUID, LibTypes> | undefined> {
-    switch (type) {
-      case 'artist':
-        return this.artists;
-
-      case 'track':
-        return this.tracks;
-
-      case 'album':
-        return this.albums;
-
-      default:
-        return undefined;
-    }
-  }
 
   private getRepository(type: LibNames): Repository<Artist | Track | Album> | undefined {
     switch (type) {
@@ -53,70 +31,100 @@ export class InMemoryLibRepository implements ILibRepository {
     }
   }
 
-  async save(obj: LibTypes, type: LibNames): Promise<LibTypes> {
+  async saveEntyty(obj: LibTypes, type: LibNames): Promise<LibTypes> {
     const repository = this.getRepository(type);
-    if (repository) repository.save(obj);
-    return obj;
+    if (repository) {
+      return await repository.save(obj);
+    }
+    throw new Error(`Repository for type "${type}" not found`);
+  }
+
+  async updateByID(obj: LibTypes, type: LibNames): Promise<LibTypes> {
+    const repository = this.getRepository(type);
+    if (repository) {
+      const { id, ...data } = obj;
+      await repository.update(id, data);
+      return await repository.findOne({ where: { id } });
+    }
+    throw new Error(`Repository for type "${type}" not found`);
   }
 
   async get(id: UUID, type: LibNames): Promise<LibTypes | undefined> {
-    const map = await this.getMap(type);
-    return map.get(id);
-  }
-
-  async getAll(type: LibNames): Promise<LibTypes[] | undefined> {
-    const map = await this.getMap(type);
-    return map ? (Array.from(map.values()) as LibTypes[]) : undefined;
-  }
-
-  async delete(id: UUID, type: LibNames): Promise<void> {
-    const map = await this.getMap(type);
-    if (map) {
-      map.delete(id);
-      if (type === 'album') {
-        this.tracks.forEach((track) => {
-          if (track.albumId === id) track.albumId = null;
-        });
-      } else if (type === 'artist') {
-        this.tracks.forEach((track) => {
-          if (track.artistId === id) {
-            track.artistId = null;
-          }
-        });
-        this.albums.forEach((album) => {
-          if (album.artistId === id) {
-            album.artistId = null;
-          }
-        });
-      }
+    const repository = this.getRepository(type);
+    if (repository) {
+      return await repository.findOne({ where: { id } });
     }
-    return;
+    throw new Error(`Repository for type "${type}" not found`);
+  }
+
+  async getAll(type: LibNames): Promise<LibTypes[]> {
+    const repository = this.getRepository(type);
+    if (repository) {
+      return await repository.find();
+    }
+    throw new Error(`Repository for type "${type}" not found`);
+  }
+
+  async deleteByID(id: UUID, type: LibNames): Promise<void> {
+    const repository = this.getRepository(type);
+    if (!repository) {
+      throw new Error(`Repository for type "${type}" not found`);
+    }
+
+    await repository.delete(id);
+
+    if (type === 'album') {
+      await this.trackRepository
+        .createQueryBuilder()
+        .update(Track)
+        .set({ albumId: null })
+        .where('albumId = :id', { id })
+        .execute();
+    } else if (type === 'artist') {
+      await this.trackRepository
+        .createQueryBuilder()
+        .update(Track)
+        .set({ artistId: null })
+        .where('artistId = :id', { id })
+        .execute();
+
+      await this.albumRepository
+        .createQueryBuilder()
+        .update(Album)
+        .set({ artistId: null })
+        .where('artistId = :id', { id })
+        .execute();
+    }
   }
 
   private async getFavsData(
     id: UUID,
     type: LibNames,
-  ): Promise<{ map?: Map<UUID, LibTypes>; entity?: LibTypes }> {
-    const map = await this.getMap(type);
-    if (!map) return {};
-    const entity = map.get(id);
+  ): Promise<{ repository?: Repository<Artist | Track | Album>; entity?: LibTypes }> {
+    const repository = this.getRepository(type);
+    if (!repository) return {};
+    const entity = await repository.findOne({ where: { id } });
     if (!entity) return {};
-    return { map, entity };
+    return { repository, entity };
   }
 
-  async getFavs(userId: UUID | null): Promise<FavoritesJSON> {
-    return await this.favorites.getAll(userId);
+  async getFavs(_userId: UUID | null): Promise<FavoritesJSON> {
+    return {
+      artists: await this.artistRepository.find({ where: { favorite: true } }),
+      tracks: await this.trackRepository.find({ where: { favorite: true } }),
+      albums: await this.albumRepository.find({ where: { favorite: true } }),
+    };
   }
 
   async addFavs(id: UUID, type: LibNames): Promise<void> {
-    const { entity, map } = await this.getFavsData(id, type);
-    if (!entity || !map) return;
-    await this.favorites.add(entity, map);
+    const { entity, repository } = await this.getFavsData(id, type);
+    if (!entity || !repository) return;
+    await repository.update(id, { favorite: true });
   }
 
   async removeFavs(id: UUID, type: LibNames): Promise<void> {
-    const { entity, map } = await this.getFavsData(id, type);
-    if (!entity || !map) return;
-    await this.favorites.remove(entity, map);
+    const { entity, repository } = await this.getFavsData(id, type);
+    if (!entity || !repository) return;
+    await repository.update(id, { favorite: false });
   }
 }

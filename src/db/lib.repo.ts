@@ -29,7 +29,13 @@ export class InMemoryLibRepository implements ILibRepository {
     }
   }
 
-  async save(obj: LibTypes, type: LibNames): Promise<LibTypes> {
+  async saveEntyty(obj: LibTypes, type: LibNames): Promise<LibTypes> {
+    const map = await this.getMap(type);
+    if (map) map.set(obj.id, obj);
+    return obj as LibTypes;
+  }
+
+  async updateByID(obj: LibTypes, type: LibNames): Promise<LibTypes> {
     const map = await this.getMap(type);
     if (map) map.set(obj.id, obj);
     return obj as LibTypes;
@@ -45,7 +51,7 @@ export class InMemoryLibRepository implements ILibRepository {
     return map ? (Array.from(map.values()) as LibTypes[]) : undefined;
   }
 
-  async delete(id: UUID, type: LibNames): Promise<void> {
+  async deleteByID(id: UUID, type: LibNames): Promise<void> {
     const map = await this.getMap(type);
     if (map) {
       map.delete(id);

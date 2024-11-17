@@ -1,8 +1,9 @@
 import { UUID } from 'crypto';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { serialize } from '../common/utils/serialize';
+import { Column, PrimaryColumn } from 'typeorm';
 
 export abstract class BaseLibClass {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryColumn('uuid')
   public readonly id: UUID;
 
   @Column({ nullable: true })
@@ -12,8 +13,13 @@ export abstract class BaseLibClass {
   public favorite: boolean;
 
   protected constructor(userId: string | null = null) {
+    this.id = crypto.randomUUID() as UUID;
     this.userId = userId;
     this.favorite = false;
+  }
+
+  toJSON(): { [key: string]: unknown } {
+    return serialize(this, ['userId', 'favorite']);
   }
 }
 

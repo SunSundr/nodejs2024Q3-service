@@ -40,13 +40,13 @@ export class LibService {
     // const newEntity = owner.createFromDto(createDto as any);
     const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto);
     if (!newEntity) return null;
-    return await this.libRepository.save(newEntity, LibService.typeNameByOwner(owner));
+    return await this.libRepository.saveEntyty(newEntity, LibService.typeNameByOwner(owner));
   }
 
   async update(owner: LibModels, obj: LibTypes, updateDto: LibDtos): Promise<LibTypes> {
     // obj.updateFromDto(updateDto as any);
     LibService.callByOwner(owner, obj.updateFromDto.bind(obj), updateDto);
-    return await this.libRepository.save(obj, LibService.typeNameByOwner(owner));
+    return await this.libRepository.updateByID(obj, LibService.typeNameByOwner(owner));
   }
 
   async getAll(owner: LibModels): Promise<LibTypes[]> {
@@ -59,7 +59,7 @@ export class LibService {
   }
 
   async delete(owner: LibModels, obj: LibTypes): Promise<void> {
-    await this.libRepository.delete(obj.id, LibService.typeNameByOwner(owner));
+    await this.libRepository.deleteByID(obj.id, LibService.typeNameByOwner(owner));
   }
 
   async getAllFavs(userId: UUID | null): Promise<FavoritesJSON> {

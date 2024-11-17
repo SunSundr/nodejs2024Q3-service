@@ -12,7 +12,6 @@ export default [
     plugins: {
       'prettier/recommended': {},
     },
-    ignores: ['test', '[0-9]*-InitialMigration.ts'],
     rules: {
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
@@ -21,4 +20,5 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
+  { ignores: ['test', 'dist', '[0-9]*-InitialMigration.ts'] },
 ];

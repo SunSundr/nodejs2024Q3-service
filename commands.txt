@@ -72,3 +72,13 @@ ALTER SCHEMA public OWNER TO nodejs2024q3;
 
 psql -U nodejs2024q3 -d nodejs2024q3-typeorm -h localhost
 psql --version
+
+DOCKER
+----------------------------------------------------------------------------------------
+docker-compose up --build
+
+docker-compose down
+
+docker-compose down -v
+
+docker volume rm <volume_name>

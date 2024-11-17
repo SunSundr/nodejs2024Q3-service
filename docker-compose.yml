@@ -1,0 +1,47 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: nodejs2024q3
+      DATABASE_PASSWORD: 5106
+      DATABASE_NAME: nodejs2024q3-typeorm
+    container_name: my-app
+    restart: always
+    env_file: .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  postgres:
+    image: postgres:17
+    container_name: my-postgres
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./src/typeorm/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/var/lib/postgresql/data
+      - postgres-logs:/var/log/postgresql
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+  postgres-logs:
+
+networks:
+  app-network:
+    driver: bridge

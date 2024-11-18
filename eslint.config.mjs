@@ -20,5 +20,5 @@ export default [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     },
   },
-  { ignores: ['test', 'dist', '[0-9]*-InitialMigration.ts'] },
+  { ignores: ['test', 'dist', '[0-9]*-InitialMigration.ts', 'package.init.cjs'] },
 ];

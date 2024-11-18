@@ -1,16 +1,38 @@
 import { DataSourceOptions } from 'typeorm';
 
+function checkEnvVariables(variables: string[]): void {
+  const missingVariables = variables.filter((variable) => !process.env[variable]);
+  if (missingVariables.length > 0) {
+    console.error(
+      `Error: The following environment variables are missing: ${missingVariables.join(', ')}`,
+    );
+    process.exit(1);
+  }
+}
+
+const requiredEnvVariables = [
+  'DATABASE_HOST',
+  'DATABASE_PORT',
+  'DATABASE_USER',
+  'DATABASE_PASSWORD',
+  'DATABASE_NAME',
+  'DATABASE_SCHEMA',
+];
+
+checkEnvVariables(requiredEnvVariables);
+
 export const dataSourceOptions: DataSourceOptions = {
   type: 'postgres',
-  host: process.env.DATABASE_HOST || 'localhost',
-  port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
-  username: process.env.DATABASE_USER || 'nodejs2024q3',
-  password: process.env.DATABASE_PASSWORD || '5106',
-  database: process.env.DATABASE_NAME || 'nodejs2024q3-typeorm',
+  host: process.env.DATABASE_HOST,
+  port: parseInt(process.env.DATABASE_PORT, 10),
+  username: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE_NAME,
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
-  schema: 'nodejs2024schema',
-  dropSchema: true,
-  synchronize: true,
-  logging: true,
+  migrationsRun: true,
+  schema: process.env.DATABASE_SCHEMA,
+  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
+  synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
+  logging: process.env.TYPEORM_LOGGING === 'true',
 };

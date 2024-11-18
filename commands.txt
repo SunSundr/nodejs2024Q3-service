@@ -85,4 +85,6 @@ docker volume rm <volume_name>
 
 docker-compose ps
 
-docker-compose logs -t -
+docker-compose logs -t -f
+
+docker pull izydock/hls-backend

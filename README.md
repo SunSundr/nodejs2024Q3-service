@@ -2,61 +2,66 @@
 
 This repository contains solution for a REST Home Library Service.
 
-The project was completed as part of the [RS School](https://rs.school/) [NodeJS 2024 Q3 course (Home Library Service)](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/rest-service/assignment.md).
+The project was completed as part of the [RS School](https://rs.school/) [NodeJS 2024 Q3 course (Home Library Service)](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/assignment.md).
 
 ## Project Setup
 
 1. **Clone the repository:**
-```
+```bash
 git clone https://github.com/SunSundr/nodejs2024Q3-service
 ```
 2. **Navigate to the project directory:**
-```
+```bash
 cd nodejs2024Q3-service
 ```
-3. **Define the `.env` file:**
+3. **Checkout the `develop2` branch:**
+```bash
+git checkout develop2
 ```
+4. **Define the `.env` file:**
+```bash
 cp .env.example .env
 ```
-Then, open the newly created `.env` file and set the `PORT` variable to the desired port number for your application.
+5. **Install the dependencies:**
+```bash
+npm ci
+```
+## Environment variables
+App needs a .env file in the root directory of the project with following environment variables:
 
-4. **Install the dependencies:**
-```
-npm install
-```
+- **`PORT`**: Server port
+- **`POSTGRES_PASSWORD`**: PostgreSQL Admin Credentials (required for Docker image initialization).
+- **`POSTGRES_PORT`**: Port for the direct PostgreSQL connection (used only for direct connection, if needed for testing).
+- **`DATABASE_CONTAINER_HOST`**: Database Docker container host.
+- **`DATABASE_PORT`**: Database port.
+- **`DATABASE_USER`**: Database username.
+- **`DATABASE_PASSWORD`**: Database password.
+- **`DATABASE_NAME`**: Database name.
+- **`DATABASE_SCHEMA`**: Database schema name.
+- **`CONTAINER_NAME_APP`**: Docker Compose application container name.
+- **`CONTAINER_NAME_DB`**: Docker Compose database container name.
+- **`COMPOSE_PROJECT_NAME`**: Docker Compose project name.
+- **`TYPEORM_LOGGING`**: Enable TypeORM logging (true/false).
+- **`TYPEORM_DROPSCHEMA`**: Drop schema on startup (true/false - use with caution!).
+- **`TYPEORM_SYNCHRONIZE`**: Synchronize database schema on startup (true/false - use with caution!).
+
+A `.env.example` file is provided as a template.  Copy this file to `.env` and populate it with your values.
 
 ## Running the Application
 
-To run the application, you can use the following commands (npm-scripts are defined in the `package.json` file):
-
-1. **Start the development server:**
    ```bash
-   npm run start:dev
+   npm run docker:up
    ```
-   Starts the application in development mode with automatic restarting on file changes. This is typically used for local development.
-
-2. **Start the application (without watch mode):**
-   ```bash
-   npm run start
-   ```
-   Starts the application in development mode without automatic restarting.
-
-3. **Start the application in debug mode:**
-   ```bash
-   npm run start:debug
-   ```
-   Starts the application in debug mode with automatic restarting on file changes.  Useful for debugging issues.
-
-4. **Start the application in production mode:**
-   ```bash
-   npm run start:prod
-   ```
-   Starts the built application in production mode. Use this after running `npm run build`.
 
 After starting the app on port (4000 as default) you can open
 in your browser OpenAPI documentation by typing http://localhost:4000/doc/doc/.
 For more information about OpenAPI/Swagger please visit https://swagger.io/.
 
+## Stopping application
+
+   ```bash
+   npm run docker:down
+   ```
 
 ## API Endpoints
 
@@ -172,18 +177,6 @@ To run only one of all test suites
 npm run test -- <path to suite>
 ```
 
-To run all test with authorization
-
-```
-npm run test:auth
-```
-
-To run only specific test suite with authorization
-
-```
-npm run test:auth -- <path to suite>
-```
-
 ### Auto-fix and format
 
 ```
@@ -199,3 +192,7 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+### Docker volumes
+
+Database files and logs are stored in `postgres-logs` volume. Logs could be find inside `logs` folder in that volume.

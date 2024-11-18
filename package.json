@@ -9,6 +9,10 @@
     "prebuild": "rimraf dist",
     "build": "nest build",
     "start": "nest start",
+    "docker:up": "docker compose up",
+    "docker:down": "docker compose down",
+    "docker:scan:app": "docker scout cves sunsundr/home-library-service-app:latest",
+    "docker:scan:db": "docker scout cves sunsundr/home-library-service-postgres:latest",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -22,9 +26,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "migration:generate": "npm run build && npx typeorm-ts-node-commonjs migration:generate src/typeorm/migrations/InitialMigration -d ./dist/typeorm/data-source.js",
     "migration:run": "npm run typeorm -- migration:run",
-    "migration:revert": "npm run typeorm -- migration:revert",
-    "scan:vulnerabilities:app": "docker scout cves sunsundr/home-library-service-app:latest",
-    "scan:vulnerabilities:db": "docker scout cves sunsundr/home-library-service-postgres:latest"
+    "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.7",

@@ -112,3 +112,6 @@ docker tag home-library-service-postgres:latest sunsundr/home-library-service-po
 
 docker push sunsundr/home-library-service-app:latest
 docker push sunsundr/home-library-service-postgres:latest
+
+docker pull sunsundr/home-library-service-app:latest
+docker pull sunsundr/home-library-service-postgres:latest

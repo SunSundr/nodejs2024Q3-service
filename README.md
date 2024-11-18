@@ -167,23 +167,23 @@ After application running open new terminal and enter:
 
 To run all tests without authorization
 
-```
+```bash
 npm run test
 ```
 
 To run only one of all test suites
 
-```
+```bash
 npm run test -- <path to suite>
 ```
 
 ### Auto-fix and format
 
-```
+```bash
 npm run lint
 ```
 
-```
+```bash
 npm run format
 ```
 
@@ -196,3 +196,13 @@ For more information, visit: https://code.visualstudio.com/docs/editor/debugging
 ### Docker volumes
 
 Database files and logs are stored in `postgres-logs` volume. Logs could be find inside `logs` folder in that volume.
+
+### Vulnerabilities scanning
+
+```bash
+npm run docker:scan:app
+```
+
+```bash
+npm run docker:scan:db
+```

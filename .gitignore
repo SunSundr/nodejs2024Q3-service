@@ -37,3 +37,4 @@ lerna-debug.log*
 /test
 .env
 migrations_applied
+commands.txt

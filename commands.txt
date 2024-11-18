@@ -88,3 +88,27 @@ docker-compose ps
 docker-compose logs -t -f
 
 docker pull izydock/hls-backend
+docker pull sunsundr/nodejs2024q3:0.0.1
+
+docker push sunsundr/nodejs2024q3:tagname
+
+
+
+docker build -t sunsundr/nodejs2024q3:0.0.1 .
+docker push sunsundr/nodejs2024q3:0.0.1
+
+docker push sunsundr/nodejs2024q3/home-library-service-app:0.0.1
+
+docker pull sunsundr/nodejs2024q3:0.0.1
+
+$ docker images
+
+REPOSITORY                      TAG       IMAGE ID       CREATED          SIZE 
+home-library-service-app        latest    0fc3f82bcd54   11 minutes ago   471MB
+home-library-service-postgres   latest    f0bb93a7148c   24 minutes ago   363MB
+
+docker tag home-library-service-app:latest sunsundr/home-library-service-app:latest
+docker tag home-library-service-postgres:latest sunsundr/home-library-service-postgres:latest
+
+docker push sunsundr/home-library-service-app:latest
+docker push sunsundr/home-library-service-postgres:latest

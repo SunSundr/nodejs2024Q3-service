@@ -5,15 +5,15 @@ services:
       dockerfile: Dockerfile
     environment:
       DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_USER: nodejs2024q3
-      DATABASE_PASSWORD: 5106
-      DATABASE_NAME: nodejs2024q3-typeorm
-    container_name: my-app
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+    container_name: ${CONTAINER_NAME_APP}
     restart: always
     env_file: .env
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}"
     volumes:
       - .:/app
       - /app/node_modules
@@ -23,18 +23,22 @@ services:
       - app-network
 
   postgres:
-    image: postgres:17
-    container_name: my-postgres
+    image: postgres:17.1-alpine
+    container_name: ${CONTAINER_NAME_DB}
     restart: always
     env_file: .env
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_USER: ${DATABASE_USER}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_SCHEMA: ${DATABASE_SCHEMA}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:
-      - ./src/typeorm/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./src/typeorm/init.sh:/docker-entrypoint-initdb.d/init.sh
       - postgres-data:/var/lib/postgresql/data
       - postgres-logs:/var/log/postgresql
+    command: ["bash", "-c", "chmod +x /docker-entrypoint-initdb.d/init.sh && docker-entrypoint.sh postgres"]
     networks:
       - app-network
 

@@ -82,3 +82,7 @@ docker-compose down
 docker-compose down -v
 
 docker volume rm <volume_name>
+
+docker-compose ps
+
+docker-compose logs -t -

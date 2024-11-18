@@ -1,12 +1,10 @@
-FROM node:20-slim as builder
+FROM node:22.9-alpine
 
 WORKDIR /app
 
 COPY package.json package-lock.json tsconfig.json tsconfig.build.json nest-cli.json ./
 COPY src ./src
 COPY test ./test
-
-COPY ./src/typeorm/init.sql /docker-entrypoint-initdb.d/init.sql
 
 RUN npm ci && npm cache clean --force
 

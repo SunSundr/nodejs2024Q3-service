@@ -13,6 +13,7 @@ import { IUserRepository } from '../../db/users.repo.interface';
 import { isUUID, validate } from 'class-validator';
 import { UpdateUserDto } from '../../users/user.dto';
 import { plainToClass } from 'class-transformer';
+import { ReqMethod } from '../utils/req-method.enum';
 
 @Injectable()
 export class UserByIdInterceptor implements NestInterceptor {
@@ -27,7 +28,7 @@ export class UserByIdInterceptor implements NestInterceptor {
       throw new BadRequestException('Invalid UUID');
     }
 
-    if (request.method !== 'DELETE') {
+    if (request.method !== ReqMethod.DELETE) {
       const errors = await validate(updateUserDto);
       if (errors.length > 0) {
         throw new BadRequestException('Invalid request body');
@@ -35,7 +36,7 @@ export class UserByIdInterceptor implements NestInterceptor {
     }
 
     const user =
-      request.method === 'PUT'
+      request.method === ReqMethod.PUT
         ? await this.userRepository.getUserWithPasswordById(id)
         : await this.userRepository.getById(id);
 

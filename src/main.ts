@@ -17,6 +17,8 @@ async function bootstrap() {
     process.exit(1);
   }
 
+  // throw new Error('Oops');
+
   const app = await NestFactory.create(AppModule);
   app.use((_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Content-Type', 'application/json'); // 'text/html'

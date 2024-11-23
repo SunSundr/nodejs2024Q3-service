@@ -1,6 +1,9 @@
 services:
   app:
-    image: sunsundr/home-library-service-app:latest
+    #image: sunsundr/home-library-service-app:latest
+    build:
+      context: .
+      dockerfile: ./docker/app/dockerfile
     container_name: ${CONTAINER_NAME_APP}
     environment:
       PORT: ${PORT}
@@ -13,6 +16,13 @@ services:
       TYPEORM_LOGGING: ${TYPEORM_LOGGING}
       TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE}
     restart: always
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules/
     env_file: .env
     ports:
       - "${PORT}:${PORT}"

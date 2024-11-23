@@ -11,4 +11,4 @@ RUN node package.init.cjs
 RUN npm install && npm cache clean --force
 RUN npm run build
 
-CMD npm run start:dev
+CMD ["npm", "start"]

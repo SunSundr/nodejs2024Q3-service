@@ -72,29 +72,6 @@ export class LibTypeOrmRepository implements ILibRepository {
     }
 
     await repository.delete(id);
-
-    if (type === 'album') {
-      await this.trackRepository
-        .createQueryBuilder()
-        .update(Track)
-        .set({ albumId: null })
-        .where('albumId = :id', { id })
-        .execute();
-    } else if (type === 'artist') {
-      await this.trackRepository
-        .createQueryBuilder()
-        .update(Track)
-        .set({ artistId: null })
-        .where('artistId = :id', { id })
-        .execute();
-
-      await this.albumRepository
-        .createQueryBuilder()
-        .update(Album)
-        .set({ artistId: null })
-        .where('artistId = :id', { id })
-        .execute();
-    }
   }
 
   private async getFavsData(

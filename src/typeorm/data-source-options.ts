@@ -1,4 +1,6 @@
 import { DataSourceOptions } from 'typeorm';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 function checkEnvVariables(variables: string[]): void {
   const missingVariables = variables.filter((variable) => !process.env[variable]);

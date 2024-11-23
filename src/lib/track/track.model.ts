@@ -1,6 +1,9 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseLibClass } from '../lib.base.model';
 import { TrackDto } from './track.dto';
+import { Artist } from '../artist/artist.model';
+import { Album } from '../album/album.model';
+import { serialize } from 'src/common/utils/serialize';
 
 @Entity()
 export class Track extends BaseLibClass {
@@ -15,6 +18,15 @@ export class Track extends BaseLibClass {
 
   @Column({ default: 0 })
   public duration: number;
+
+  // relations
+  @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'artistId' })
+  public artist: null;
+
+  @ManyToOne(() => Album, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'albumId' })
+  public album: null;
 
   private constructor(
     userId: string | null,
@@ -47,5 +59,9 @@ export class Track extends BaseLibClass {
       albumId: updateDto.albumId ?? this.albumId,
       duration: updateDto.duration ?? this.duration,
     });
+  }
+
+  toJSON(): { [key: string]: unknown } {
+    return serialize(this, ['userId', 'favorite', 'artist', 'album']);
   }
 }

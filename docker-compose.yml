@@ -1,9 +1,6 @@
 services:
   app:
-    #image: sunsundr/home-library-service-app:latest
-    build:
-      context: .
-      dockerfile: ./docker/app/dockerfile
+    image: sunsundr/home-library-service-app:prod-watch
     container_name: ${CONTAINER_NAME_APP}
     environment:
       PORT: ${PORT}

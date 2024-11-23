@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
+psql -v ON_ERROR_STOP=1 --username "$DATABASE_HOST" --dbname "$DATABASE_HOST" <<-EOSQL
     CREATE USER "$DATABASE_USER" WITH PASSWORD '$DATABASE_PASSWORD';
     CREATE DATABASE "$DATABASE_NAME";
     GRANT ALL PRIVILEGES ON DATABASE "$DATABASE_NAME" TO "$DATABASE_USER";
@@ -13,4 +13,3 @@ psql -v ON_ERROR_STOP=1 --username "postgres" --dbname "postgres" <<-EOSQL
 
     SET search_path TO "$DATABASE_SCHEMA";
 EOSQL
-

@@ -18,6 +18,7 @@ import { LibService } from './lib.service';
 import { isUUID, validate, ValidationError } from 'class-validator';
 import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
 import { UniversalDTO } from './lib.base.dto';
+import { ReqMethod } from 'src/common/utils/req-method.enum';
 
 interface ValidateResult {
   entity: LibTypes | null;
@@ -34,13 +35,13 @@ export abstract class LibBaseController {
   protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
     const { id } = req.params as { id: UUID };
 
-    if (req.method !== 'POST' && !isUUID(id)) {
+    if (req.method !== ReqMethod.POST && !isUUID(id)) {
       throw new BadRequestException('Invalid UUID');
     }
 
     let dto: LibDtos | undefined;
 
-    if (req.method !== 'DELETE' && req.method !== 'GET') {
+    if (req.method !== ReqMethod.DELETE && req.method !== ReqMethod.GET) {
       dto = plainToClass(this.dtoClass, req.body);
       const errors = await validate(dto);
 
@@ -63,7 +64,7 @@ export abstract class LibBaseController {
 
     let entity: LibTypes | null;
 
-    if (req.method !== 'POST') {
+    if (req.method !== ReqMethod.POST) {
       entity = await this.libService.getById(this.owner, id);
 
       if (!entity) {

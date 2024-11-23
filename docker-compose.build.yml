@@ -15,6 +15,13 @@ services:
       TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE}
     container_name: ${CONTAINER_NAME_APP}
     restart: always
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src
+          target: /app/src
+          ignore:
+            - node_modules/
     env_file: .env
     ports:
       - "${PORT}:${PORT}"

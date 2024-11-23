@@ -55,7 +55,7 @@ export class LibService {
 
   async getById(owner: LibModels, id: UUID): Promise<LibTypes | null> {
     const entity = await this.libRepository.get(id, LibService.typeNameByOwner(owner));
-    return entity ? entity : null;
+    return entity || null;
   }
 
   async delete(owner: LibModels, obj: LibTypes): Promise<void> {

@@ -2,6 +2,7 @@ import { Entity, PrimaryColumn, Column, VersionColumn } from 'typeorm';
 import { UUID } from 'crypto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { serialize } from '../common/utils/serialize';
+import { checkPassword, getHash } from 'src/common/utils/hash';
 
 @Entity()
 export class User {
@@ -12,7 +13,7 @@ export class User {
   login: string;
 
   @Column({ select: false })
-  private password: string;
+  private password: string; // hash string
 
   @VersionColumn()
   version: number;
@@ -38,7 +39,7 @@ export class User {
   private constructor(login: string, password: string) {
     this.id = crypto.randomUUID() as UUID;
     this.login = login;
-    this.password = password;
+    this.password = getHash(password);
     this.version = 1;
     this.createdAt = Date.now();
     this.updatedAt = this.createdAt;
@@ -50,13 +51,13 @@ export class User {
 
   updateFromDto(updateDto: UpdateUserDto): void {
     this.login = updateDto.login || this.login;
-    this.password = updateDto.newPassword || this.password;
+    this.password = getHash(updateDto.newPassword) || this.password;
     this.version++;
     this.updatedAt = Date.now();
   }
 
   async checkPassword(newPassword: string): Promise<boolean> {
-    return this.password !== newPassword;
+    return !(await checkPassword(newPassword, this.password));
   }
 
   toJSON(): { [key: string]: unknown } {

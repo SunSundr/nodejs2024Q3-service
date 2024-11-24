@@ -34,7 +34,7 @@ export abstract class LibBaseController {
 
   protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
     const { id } = req.params as { id: UUID };
-    console.log('>>>>', req['user']);
+    // console.log('>>>>', req['user']);
 
     if (req.method !== ReqMethod.POST && !isUUID(id)) {
       throw new BadRequestException('Invalid UUID');

@@ -99,7 +99,7 @@ export class UsersController {
 
   @Delete(':id')
   @UseInterceptors(UserByIdInterceptor)
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete user by ID' })
   @ApiParam({ name: 'id', description: 'User ID', type: 'string', format: 'uuid' })
   @ApiResponse({ status: HttpStatus.NO_CONTENT, description: 'User successfully deleted' })

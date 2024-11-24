@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/users/user.dto';
 import { User } from 'src/users/user.model';
 import { LoginData, LoginDataWithToken } from './auth.login.interface';
 import { loadEnv } from 'src/common/utils/load.env';
+import { JWT_DEFAULT } from 'src/app.config';
 
 loadEnv(); // for dev-mode
 
@@ -19,10 +20,10 @@ export class AuthService {
     return {
       ...loginData,
       accessToken: await this.jwtService.signAsync(loginData, {
-        expiresIn: process.env.TOKEN_EXPIRE_TIME || '1h',
+        expiresIn: process.env.TOKEN_EXPIRE_TIME || JWT_DEFAULT.tokenExpireTime,
       }),
       refreshToken: await this.jwtService.signAsync(loginData, {
-        expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME || '24h',
+        expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME || JWT_DEFAULT.tokenRefreshExpireTime,
       }),
     };
   }
@@ -41,7 +42,7 @@ export class AuthService {
     }
     try {
       const loginData: LoginData = await this.jwtService.verifyAsync(refreshTokenOld);
-      return this.login({ userId: loginData.userId, login: loginData.login });
+      return await this.login({ userId: loginData.userId, login: loginData.login });
     } catch (err) {
       throw new ForbiddenException(
         `Verify token error: ${err instanceof Error ? err.message : 'Unknown error'}`,

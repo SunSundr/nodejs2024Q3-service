@@ -5,6 +5,8 @@ import {
   // UseGuards,
   // Request,
   ForbiddenException,
+  HttpCode,
+  HttpStatus,
   // HttpStatus,
   // HttpCode,
 } from '@nestjs/common';
@@ -44,8 +46,9 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @HttpCode(HttpStatus.OK)
   @Public()
   async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<LoginData> {
-    return this.authService.refreshToken(refreshTokenDto.refreshToken);
+    return await this.authService.refreshToken(refreshTokenDto.refreshToken);
   }
 }

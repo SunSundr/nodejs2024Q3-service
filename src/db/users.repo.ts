@@ -6,7 +6,7 @@ import { UpdateUserDto } from 'src/users/user.dto';
 
 @Injectable()
 export class InMemoryUserRepository implements IUserRepository {
-  private users: Map<UUID, User> = new Map();
+  private readonly users: Map<UUID, User> = new Map();
 
   async saveEntyty(user: User): Promise<User> {
     this.users.set(user.id, user);
@@ -33,5 +33,13 @@ export class InMemoryUserRepository implements IUserRepository {
   async deleteByID(id: UUID): Promise<void> {
     this.users.delete(id);
     return;
+  }
+
+  async getByLogin(login: string): Promise<User | undefined> {
+    const users = await this.getAll();
+    for (const user of users) {
+      if (user.login === login) return user;
+    }
+    return undefined;
   }
 }

@@ -4,6 +4,7 @@ import { UUID } from 'crypto';
 
 export interface IUserRepository {
   getById(id: UUID): Promise<User | undefined>;
+  getByLogin(login: string): Promise<User | undefined>;
   getUserWithPasswordById(id: UUID): Promise<Partial<User>>;
   updateEntity(user: User, updateDto: UpdateUserDto): Promise<User>;
   getAll(): Promise<User[]>;

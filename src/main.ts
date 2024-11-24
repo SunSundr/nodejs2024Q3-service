@@ -1,15 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { Request, Response, NextFunction } from 'express';
-import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
 import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
 import { AppService } from './app.service';
-
-dotenv.config();
+import { loadEnv } from './common/utils/load.env';
 
 async function bootstrap() {
+  await loadEnv('PORT');
   const port = process.env.PORT;
 
   if (!port) {

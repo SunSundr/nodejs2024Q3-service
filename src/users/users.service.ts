@@ -31,4 +31,8 @@ export class UsersService {
     await this.userRepository.deleteByID(user.id);
     return true;
   }
+
+  async findByLogin(login: string): Promise<User | undefined> {
+    return await this.userRepository.getByLogin(login);
+  }
 }

@@ -1,6 +1,7 @@
+import { loadEnv } from 'src/common/utils/load.env';
 import { DataSourceOptions } from 'typeorm';
-import * as dotenv from 'dotenv';
-dotenv.config();
+
+loadEnv(); // for dev-mode
 
 function checkEnvVariables(variables: string[]): void {
   const missingVariables = variables.filter((variable) => !process.env[variable]);

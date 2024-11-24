@@ -42,4 +42,8 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     await this.userRepository.delete(id);
     return;
   }
+
+  async getByLogin(login: string): Promise<User | undefined> {
+    return this.userRepository.findOne({ where: { login } });
+  }
 }

@@ -6,19 +6,33 @@ import { ArtistModule } from './lib/artist/artist.module';
 import { TrackModule } from './lib/track/track.module';
 import { AlbumModule } from './lib/album/album.module';
 import { FavoritesModule } from './lib/favorites/favs.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from './typeorm/data-source-options';
+import { AuthModule } from './auth/auth.module';
+import { AuthGuard } from './auth/auth.guard';
+import { APP_GUARD } from '@nestjs/core';
+// import { TypeOrmModule } from '@nestjs/typeorm';
+// import { dataSourceOptions } from './typeorm/data-source-options';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(dataSourceOptions),
+    // TypeOrmModule.forRoot(dataSourceOptions),
     UsersModule,
     ArtistModule,
     TrackModule,
     AlbumModule,
     FavoritesModule,
+    AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: HttpExceptionFilter,
+    // },
+  ],
 })
 export class AppModule {}

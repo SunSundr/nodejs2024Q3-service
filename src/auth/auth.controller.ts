@@ -1,15 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  // UseGuards,
-  // Request,
-  ForbiddenException,
-  HttpCode,
-  HttpStatus,
-  // HttpStatus,
-  // HttpCode,
-} from '@nestjs/common';
+import { Controller, Post, Body, ForbiddenException, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../users/user.dto';
 import { UsersService } from 'src/users/users.service';
@@ -17,7 +6,9 @@ import { LoginData } from './auth.login.interface';
 import { RefreshTokenDto } from './auth.refresh.dto';
 import { Public } from 'src/common/utils/public.decorator';
 import { TEST_USER_DTO } from 'src/app.config';
+import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -27,7 +18,10 @@ export class AuthController {
 
   @Post('signup')
   @Public()
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'User registered successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input' })
   async signup(@Body() createUserDto: CreateUserDto) {
+    console.log('signup');
     const user = await this.userService.findByLogin(createUserDto.login);
     if (user && createUserDto.login !== TEST_USER_DTO.login) {
       throw new ForbiddenException(`User "${createUserDto.login}" already exists`);
@@ -37,6 +31,12 @@ export class AuthController {
 
   @Post('login')
   @Public()
+  @ApiResponse({ status: HttpStatus.OK, description: 'Login successful' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid input' })
+  @ApiResponse({
+    status: 403,
+    description: 'Authentication failed. No user with such login, password',
+  })
   async login(@Body() createUserDto: CreateUserDto): Promise<LoginData> {
     const user = await this.userService.findByLogin(createUserDto.login);
     if (!user) {
@@ -46,6 +46,9 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Token refreshed' })
+  @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid token' })
+  @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Authentication failed' })
   @HttpCode(HttpStatus.OK)
   @Public()
   async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<LoginData> {

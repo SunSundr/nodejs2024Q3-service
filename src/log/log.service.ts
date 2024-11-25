@@ -87,7 +87,7 @@ export class LogService extends ConsoleLogger {
   async log(message: string, context?: string): Promise<void> {
     if (!this.shouldLog(LogLevel.LOG)) return;
     const formatted = this.formatLogMessage(LogLevel.LOG, message);
-    super.log(message, context);
+    super.log(message || '', context || '');
     await this.logToFile(this.logFilePath, formatted);
   }
 
@@ -97,7 +97,7 @@ export class LogService extends ConsoleLogger {
     const formattedMessage = this.verboseStack ? `${message} - ${stack || ''}` : message;
 
     const formatted = this.formatLogMessage(LogLevel.ERROR, formattedMessage);
-    super.error(message, this.verboseStack ? stack : undefined, context);
+    super.error(message || '', this.verboseStack ? stack : undefined, context || '');
     await this.logToFile(this.logFilePath, formatted);
     await this.logToFile(this.errorLogFilePath, formatted);
   }
@@ -106,7 +106,7 @@ export class LogService extends ConsoleLogger {
     if (!this.shouldLog(LogLevel.WARN)) return;
 
     const formatted = this.formatLogMessage(LogLevel.WARN, message);
-    super.warn(message, context);
+    super.warn(message || '', context || '');
     await this.logToFile(this.logFilePath, formatted);
   }
 
@@ -114,7 +114,7 @@ export class LogService extends ConsoleLogger {
     if (!this.shouldLog(LogLevel.DEBUG)) return;
 
     const formatted = this.formatLogMessage(LogLevel.DEBUG, message);
-    super.debug(message, context);
+    super.debug(message || '', context || '');
     await this.logToFile(this.logFilePath, formatted);
   }
 
@@ -122,19 +122,19 @@ export class LogService extends ConsoleLogger {
     if (!this.shouldLog(LogLevel.VERBOSE)) return;
 
     const formatted = this.formatLogMessage(LogLevel.VERBOSE, message);
-    super.verbose(message, context);
+    super.verbose(message || '', context || '');
     await this.logToFile(this.logFilePath, formatted);
   }
 
   async logRequest(req: Request, id?: string): Promise<void> {
     const { method, url, body, query } = req;
-    this.log(
+    await this.log(
       `Request-${id || req['id']}: ${method} ${url}, Query: ${JSON.stringify(query)}, Body: ${JSON.stringify(body)}`,
     );
   }
 
   async logResponse(res: Response, id?: string, duration?: number): Promise<void> {
     const formatDuration = duration ? ` [${duration}ms]` : '';
-    this.log(`Response-${id || res['id']}: statusCode: ${res.statusCode}${formatDuration}`);
+    await this.log(`Response-${id || res['id']}: statusCode: ${res.statusCode}${formatDuration}`);
   }
 }

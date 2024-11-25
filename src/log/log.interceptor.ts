@@ -13,6 +13,7 @@ export class LogInterceptor implements NestInterceptor {
     const res: Response = context.switchToHttp().getResponse();
     const start = Date.now();
     const id = crypto.randomUUID();
+    req['id'] = id;
     this.loggingService.logRequest(req, id);
 
     return next.handle().pipe(

@@ -24,6 +24,7 @@ interface ValidateResult {
   entity: LibTypes | null;
   dto?: LibDtos;
   errors?: ValidationError[];
+  userId: UUID | null;
 }
 
 export abstract class LibBaseController {
@@ -34,7 +35,7 @@ export abstract class LibBaseController {
 
   protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
     const { id } = req.params as { id: UUID };
-    // console.log('>>>>', req['user']);
+    const userId = req['userId'] ? req['userId'] : null;
 
     if (req.method !== ReqMethod.POST && !isUUID(id)) {
       throw new BadRequestException('Invalid UUID');
@@ -75,7 +76,7 @@ export abstract class LibBaseController {
       entity = null;
     }
 
-    return { entity, dto };
+    return { entity, dto, userId };
   }
 
   @Get()
@@ -110,8 +111,8 @@ export abstract class LibBaseController {
     description: 'Bad request, body is invalid or missing required fields',
   })
   async create(@Request() req: ExpressRequest, @Body() _: UniversalDTO): Promise<LibTypes> {
-    const { dto } = await this.requestValidate(req);
-    return await this.libService.create(this.owner, dto);
+    const { dto, userId } = await this.requestValidate(req);
+    return await this.libService.create(this.owner, dto, userId);
   }
 
   @Put(':id')

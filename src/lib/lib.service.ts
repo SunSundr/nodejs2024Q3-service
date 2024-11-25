@@ -36,9 +36,10 @@ export class LibService {
     return owner.name.toLowerCase() as LibNames;
   }
 
-  async create(owner: LibModels, createDto: LibDtos): Promise<LibTypes | null> {
+  async create(owner: LibModels, createDto: LibDtos, userID: UUID): Promise<LibTypes | null> {
     // const newEntity = owner.createFromDto(createDto as any);
-    const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto);
+    console.log('userID:', userID);
+    const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto, userID);
     if (!newEntity) return null;
     return await this.libRepository.saveEntyty(newEntity, LibService.typeNameByOwner(owner));
   }

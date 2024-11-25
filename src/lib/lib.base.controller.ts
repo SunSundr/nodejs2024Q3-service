@@ -35,7 +35,7 @@ export abstract class LibBaseController {
 
   protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
     const { id } = req.params as { id: UUID };
-    const userId = req['userId'] ? req['userId'] : null;
+    const userId = this.getUserId(req);
 
     if (req.method !== ReqMethod.POST && !isUUID(id)) {
       throw new BadRequestException('Invalid UUID');
@@ -67,7 +67,7 @@ export abstract class LibBaseController {
     let entity: LibTypes | null;
 
     if (req.method !== ReqMethod.POST) {
-      entity = await this.libService.getById(this.owner, id);
+      entity = await this.libService.getById(this.owner, id, userId);
 
       if (!entity) {
         throw new NotFoundException(`Entity with id ${id} not found`);
@@ -79,11 +79,15 @@ export abstract class LibBaseController {
     return { entity, dto, userId };
   }
 
+  protected getUserId(req: ExpressRequest): UUID | null {
+    return req['userId'] ? req['userId'] : null;
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all entities' })
   @ApiResponse({ status: HttpStatus.OK })
-  async getAll(): Promise<LibTypes[]> {
-    return await this.libService.getAll(this.owner);
+  async getAll(@Request() req: ExpressRequest): Promise<LibTypes[]> {
+    return await this.libService.getAll(this.owner, this.getUserId(req));
   }
 
   @Get(':id')

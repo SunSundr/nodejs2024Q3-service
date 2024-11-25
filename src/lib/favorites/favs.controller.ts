@@ -10,9 +10,10 @@ import {
   UnprocessableEntityException,
   UsePipes,
   ValidationPipe,
+  Request,
 } from '@nestjs/common';
 import { UUID } from 'crypto';
-
+import { Request as ExpressRequest } from 'express';
 import { LibService } from '../lib.service';
 import { Track } from 'src/lib/track/track.model';
 import { Artist } from 'src/lib/artist/artist.model';
@@ -25,18 +26,27 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class FavoritesController {
   constructor(readonly libService: LibService) {}
 
-  private async setFavs(owner: LibModels, id: UUID, add: boolean): Promise<LibTypes | null> {
-    const entity = await this.libService.getById(owner, id);
+  private async setFavs(
+    owner: LibModels,
+    id: UUID,
+    add: boolean,
+    userId: UUID | null,
+  ): Promise<LibTypes | null> {
+    const entity = await this.libService.getById(owner, id, userId);
     if (!entity) throw new UnprocessableEntityException(`${owner.name} not found`);
-    await this.libService.applyFavs(id, owner.name.toLowerCase() as LibNames, add);
+    await this.libService.applyFavs(id, owner.name.toLowerCase() as LibNames, add, userId);
     return entity;
+  }
+
+  protected getUserId(req: ExpressRequest): UUID | null {
+    return req['userId'] ? req['userId'] : null;
   }
 
   @Get()
   @ApiOperation({ summary: 'Get all favorites' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Returns all favorite items' })
-  async findAll() {
-    return await this.libService.getAllFavs(null);
+  async findAll(@Request() req: ExpressRequest) {
+    return await this.libService.getAllFavs(this.getUserId(req));
   }
 
   @Post('track/:id')
@@ -45,8 +55,11 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for trackId' })
   @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, description: 'Track not found' })
   @UsePipes(new ValidationPipe())
-  async addTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Track, id, true);
+  async addTrack(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Track, id, true, this.getUserId(req));
   }
 
   @Delete('track/:id')
@@ -55,8 +68,11 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for trackId' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Track not found in favorites' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteTrack(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Track, id, false);
+  async deleteTrack(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Track, id, false, this.getUserId(req));
   }
 
   @Post('album/:id')
@@ -65,8 +81,11 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for albumId' })
   @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, description: 'Album not found' })
   @UsePipes(new ValidationPipe())
-  async addAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Album, id, true);
+  async addAlbum(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Album, id, true, this.getUserId(req));
   }
 
   @Delete('album/:id')
@@ -75,8 +94,11 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for albumId' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Album not found in favorites' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteAlbum(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Album, id, false);
+  async deleteAlbum(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Album, id, false, this.getUserId(req));
   }
 
   @Post('artist/:id')
@@ -85,8 +107,11 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for artistId' })
   @ApiResponse({ status: HttpStatus.UNPROCESSABLE_ENTITY, description: 'Artist not found' })
   @UsePipes(new ValidationPipe())
-  async addArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Artist, id, true);
+  async addArtist(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Artist, id, true, this.getUserId(req));
   }
 
   @Delete('artist/:id')
@@ -95,7 +120,10 @@ export class FavoritesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid UUID format for artistId' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Artist not found in favorites' })
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteArtist(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID) {
-    return await this.setFavs(Artist, id, false);
+  async deleteArtist(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
+    @Request() req: ExpressRequest,
+  ) {
+    return await this.setFavs(Artist, id, false, this.getUserId(req));
   }
 }

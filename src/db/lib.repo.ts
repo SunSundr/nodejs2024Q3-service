@@ -41,14 +41,17 @@ export class InMemoryLibRepository implements ILibRepository {
     return obj as LibTypes;
   }
 
-  async get(id: UUID, type: LibNames): Promise<LibTypes | undefined> {
+  async get(id: UUID, type: LibNames, userID: UUID | null): Promise<LibTypes | undefined> {
     const map = await this.getMap(type);
-    return map.get(id);
+    const entity = map.get(id);
+    return entity && entity.userId === userID ? entity : undefined;
   }
 
-  async getAll(type: LibNames): Promise<LibTypes[] | undefined> {
+  async getAll(type: LibNames, userID: UUID | null): Promise<LibTypes[] | undefined> {
     const map = await this.getMap(type);
-    return map ? (Array.from(map.values()) as LibTypes[]) : undefined;
+    return map
+      ? (Array.from(map.values()).filter((v) => v.userId === userID) as LibTypes[])
+      : undefined;
   }
 
   async deleteByID(id: UUID, type: LibNames): Promise<void> {
@@ -78,11 +81,12 @@ export class InMemoryLibRepository implements ILibRepository {
   private async getFavsData(
     id: UUID,
     type: LibNames,
+    userId: UUID | null,
   ): Promise<{ map?: Map<UUID, LibTypes>; entity?: LibTypes }> {
     const map = await this.getMap(type);
     if (!map) return {};
     const entity = map.get(id);
-    if (!entity) return {};
+    if (!entity || entity.userId !== userId) return {};
     return { map, entity };
   }
 
@@ -90,14 +94,14 @@ export class InMemoryLibRepository implements ILibRepository {
     return await this.favorites.getAll(userId);
   }
 
-  async addFavs(id: UUID, type: LibNames): Promise<void> {
-    const { entity, map } = await this.getFavsData(id, type);
+  async addFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
+    const { entity, map } = await this.getFavsData(id, type, userId);
     if (!entity || !map) return;
     await this.favorites.add(entity, map);
   }
 
-  async removeFavs(id: UUID, type: LibNames): Promise<void> {
-    const { entity, map } = await this.getFavsData(id, type);
+  async removeFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
+    const { entity, map } = await this.getFavsData(id, type, userId);
     if (!entity || !map) return;
     await this.favorites.remove(entity, map);
   }

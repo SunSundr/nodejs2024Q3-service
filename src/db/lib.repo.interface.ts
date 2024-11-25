@@ -18,14 +18,14 @@ export type LibDtos<T extends LibNames = LibNames> = LibMap[T]['dto'];
 export type LibTypes<T extends LibNames = LibNames> = LibMap[T]['type'];
 
 export interface ILibRepository {
-  get(id: UUID, type: LibNames): Promise<LibTypes | undefined>;
-  getAll(type: LibNames): Promise<LibTypes[] | undefined>;
+  get(id: UUID, type: LibNames, userID: UUID | null): Promise<LibTypes | undefined>;
+  getAll(type: LibNames, userID: UUID | null): Promise<LibTypes[] | undefined>;
   saveEntyty(obj: LibTypes, type: LibNames): Promise<LibTypes>;
   updateByID(obj: LibTypes, type: LibNames): Promise<LibTypes>;
   deleteByID(id: UUID, type: LibNames): Promise<void>;
   getFavs(userId: UUID | null): Promise<FavoritesJSON>;
-  addFavs(id: UUID, type: LibNames): Promise<void>;
-  removeFavs(id: UUID, type: LibNames): Promise<void>;
+  addFavs(id: UUID, type: LibNames, userID: UUID | null): Promise<void>;
+  removeFavs(id: UUID, type: LibNames, userID: UUID | null): Promise<void>;
 }
 
 export interface FavoritesJSON {

@@ -38,7 +38,6 @@ export class LibService {
 
   async create(owner: LibModels, createDto: LibDtos, userID: UUID): Promise<LibTypes | null> {
     // const newEntity = owner.createFromDto(createDto as any);
-    console.log('userID:', userID);
     const newEntity = LibService.callByOwner(owner, owner.createFromDto, createDto, userID);
     if (!newEntity) return null;
     return await this.libRepository.saveEntyty(newEntity, LibService.typeNameByOwner(owner));
@@ -50,12 +49,12 @@ export class LibService {
     return await this.libRepository.updateByID(obj, LibService.typeNameByOwner(owner));
   }
 
-  async getAll(owner: LibModels): Promise<LibTypes[]> {
-    return await this.libRepository.getAll(LibService.typeNameByOwner(owner));
+  async getAll(owner: LibModels, userID: UUID | null): Promise<LibTypes[]> {
+    return await this.libRepository.getAll(LibService.typeNameByOwner(owner), userID);
   }
 
-  async getById(owner: LibModels, id: UUID): Promise<LibTypes | null> {
-    const entity = await this.libRepository.get(id, LibService.typeNameByOwner(owner));
+  async getById(owner: LibModels, id: UUID, userID: UUID | null): Promise<LibTypes | null> {
+    const entity = await this.libRepository.get(id, LibService.typeNameByOwner(owner), userID);
     return entity || null;
   }
 
@@ -67,11 +66,11 @@ export class LibService {
     return await this.libRepository.getFavs(userId);
   }
 
-  async applyFavs(id: UUID, type: LibNames, add: boolean): Promise<void> {
+  async applyFavs(id: UUID, type: LibNames, add: boolean, userId: UUID | null): Promise<void> {
     if (add) {
-      await this.libRepository.addFavs(id, type);
+      await this.libRepository.addFavs(id, type, userId);
     } else {
-      await this.libRepository.removeFavs(id, type);
+      await this.libRepository.removeFavs(id, type, userId);
     }
   }
 }

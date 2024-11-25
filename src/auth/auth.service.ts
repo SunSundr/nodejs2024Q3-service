@@ -6,6 +6,7 @@ import { User } from 'src/users/user.model';
 import { LoginData, LoginDataWithToken } from './auth.login.interface';
 import { loadEnv } from 'src/common/utils/load.env';
 import { JWT_DEFAULT } from 'src/app.config';
+import { UUID } from 'crypto';
 
 loadEnv(); // for dev-mode
 
@@ -40,8 +41,23 @@ export class AuthService {
     if (refreshTokenOld.split('.').length !== 3) {
       throw new ForbiddenException('Invalid token format');
     }
+
+    let loginData: LoginData;
     try {
-      const loginData: LoginData = await this.jwtService.verifyAsync(refreshTokenOld);
+      loginData = await this.jwtService.decode(refreshTokenOld);
+    } catch (err) {
+      throw new ForbiddenException(
+        `Decode token error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+      );
+    }
+
+    const user = await this.usersService.getById(String(loginData.userId) as UUID);
+    if (!user) {
+      throw new UnauthorizedException('Unknown token');
+    }
+
+    try {
+      loginData = await this.jwtService.verifyAsync(refreshTokenOld);
       return await this.login({ userId: loginData.userId, login: loginData.login });
     } catch (err) {
       throw new ForbiddenException(

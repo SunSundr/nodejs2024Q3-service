@@ -16,12 +16,11 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.get<boolean>(PUBLIC_KEY, context.getHandler());
-    if (isPublic) {
-      return true;
-    }
+    if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
     if (request.url.startsWith('/doc')) return true;
+    if (request.url.startsWith('/auth/refresh')) return true;
 
     const token = this.extractTokenFromHeader(request);
 

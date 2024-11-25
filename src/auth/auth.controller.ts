@@ -50,7 +50,6 @@ export class AuthController {
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid token' })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Authentication failed' })
   @HttpCode(HttpStatus.OK)
-  @Public()
   async refresh(@Body() refreshTokenDto: RefreshTokenDto): Promise<LoginData> {
     return await this.authService.refreshToken(refreshTokenDto.refreshToken);
   }

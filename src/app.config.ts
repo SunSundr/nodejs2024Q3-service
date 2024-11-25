@@ -7,6 +7,13 @@ export const JWT_DEFAULT = {
   tokenRefreshExpireTime: '24h',
   defaultSecret: 'fakeSecret',
 };
+export const LOG_DEFAULT = {
+  logLevel: 3,
+  logFolder: 'logs',
+  logFileName: 'app.log',
+  errorFileName: 'error.log',
+  fileMaxSizeKB: 512,
+};
 export const TEST_USER_DTO = {
   login: 'TEST_AUTH_LOGIN',
   password: 'Tu6!@#%&',

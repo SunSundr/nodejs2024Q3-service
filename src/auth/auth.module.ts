@@ -5,11 +5,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { loadEnv } from 'src/common/utils/load.env';
 import { JWT_DEFAULT } from 'src/app.config';
 import { UsersModule } from 'src/users/users.module';
+import { LogModule } from 'src/log/log.module';
 
 loadEnv(); // for dev-mode
 
 @Module({
   imports: [
+    LogModule,
     UsersModule,
     JwtModule.register({
       global: true,

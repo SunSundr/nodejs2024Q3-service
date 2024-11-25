@@ -3,13 +3,15 @@ import { Reflector } from '@nestjs/core';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { PUBLIC_KEY } from 'src/common/utils/public.decorator';
-// import * as jwt from 'jsonwebtoken';
+import { LogService } from 'src/log/log.service';
+import { UUID } from 'crypto';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
     private readonly jwtService: JwtService,
     private reflector: Reflector,
+    private readonly loggingService: LogService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -24,6 +26,7 @@ export class AuthGuard implements CanActivate {
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {
+      this.loggingService.logRequest(request, this.setID(request));
       throw new UnauthorizedException('Token not provided');
     }
 
@@ -33,6 +36,7 @@ export class AuthGuard implements CanActivate {
       return true;
     } catch {
       console.log('Invalid or expired token');
+      this.loggingService.logRequest(request, this.setID(request));
       throw new UnauthorizedException('Invalid or expired token');
     }
   }
@@ -43,5 +47,11 @@ export class AuthGuard implements CanActivate {
       return null;
     }
     return authHeader.split(' ')[1];
+  }
+
+  private setID(request: Request): UUID {
+    const id = crypto.randomUUID() as UUID;
+    request['id'] = id;
+    return id;
   }
 }

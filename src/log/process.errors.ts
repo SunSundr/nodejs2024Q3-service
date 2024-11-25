@@ -1,6 +1,6 @@
-import { LoggingService } from './logging.service';
+import { LogService } from './log.service';
 
-export function processErrors(loggingService: LoggingService) {
+export function processErrors(loggingService: LogService) {
   process.on('uncaughtException', (error) => {
     try {
       loggingService.error(`Uncaught Exception: ${error.stack || error.message}`);

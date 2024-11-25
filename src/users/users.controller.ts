@@ -18,7 +18,7 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, OutputUserDTO } from './user.dto';
-import { UserByIdInterceptor } from '../common/interceptors/user-by-id.interceptor';
+import { UserByIdInterceptor } from './user-by-id.interceptor';
 import { UUID } from 'crypto';
 import { User } from './user.model';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';

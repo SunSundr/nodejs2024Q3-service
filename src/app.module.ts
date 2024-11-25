@@ -9,9 +9,9 @@ import { FavoritesModule } from './lib/favorites/favs.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggingModule } from './log/logging.module';
-import { LoggingInterceptor } from './log/logging.interceptor';
+import { LogInterceptor } from './log/log.interceptor';
 import { HttpExceptionFilter } from './log/httpException.filter';
+import { LogModule } from './log/log.module';
 // import { TypeOrmModule } from '@nestjs/typeorm';
 // import { dataSourceOptions } from './typeorm/data-source-options';
 
@@ -24,14 +24,14 @@ import { HttpExceptionFilter } from './log/httpException.filter';
     AlbumModule,
     FavoritesModule,
     AuthModule,
-    LoggingModule,
+    LogModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: AuthGuard },
     { provide: APP_FILTER, useClass: HttpExceptionFilter },
-    { provide: APP_INTERCEPTOR, useClass: LoggingInterceptor },
+    { provide: APP_INTERCEPTOR, useClass: LogInterceptor },
   ],
 })
 export class AppModule {}

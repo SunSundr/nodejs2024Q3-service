@@ -194,10 +194,18 @@ The API exposes the following endpoints:
 
 After application running open new terminal and enter:
 
-To run all tests without authorization
+To run all tests
 
 ```bash
 npm run test
+```
+
+```bash
+npm run test:auth
+```
+
+```bash
+npm run test:refresh
 ```
 
 To run only one of all test suites

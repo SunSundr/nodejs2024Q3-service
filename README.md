@@ -2,7 +2,7 @@
 
 This repository contains solution for a REST Home Library Service.
 
-The project was completed as part of the [RS School](https://rs.school/) [NodeJS 2024 Q3 course (Home Library Service)](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/containerization-database-orm/assignment.md).
+The project was completed as part of the [RS School](https://rs.school/) [NodeJS 2024 Q3 course (Home Library Service)](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/logging-error-authentication-authorization/assignment.md).
 
 ## Project Setup
 
@@ -49,8 +49,8 @@ App needs a .env file in the root directory of the project with following enviro
 **Authentication & Authorization:**
 
 - **`CRYPT_SALT`**: Number of rounds for password hashing (adjust as needed for security). (Default: 10)
-- **`JWT_SECRET_KEY`**: Secret key for JSON Web Tokens (JWTs) - **CHANGE THIS TO A STRONG, RANDOM VALUE IN PRODUCTION**.
-- **`JWT_SECRET_REFRESH_KEY`**: Secret key for JWT refresh tokens - **CHANGE THIS TO A STRONG, RANDOM VALUE IN PRODUCTION**.
+- **`JWT_SECRET_KEY`**: Secret key for JSON Web Tokens (JWTs).
+- **`JWT_SECRET_REFRESH_KEY`**: Secret key for JWT refresh tokens.
 - **`TOKEN_EXPIRE_TIME`**: Expiration time for access tokens (e.g., 1h, 24h, 1d). (Default: 1h)
 - **`TOKEN_REFRESH_EXPIRE_TIME`**: Expiration time for refresh tokens (e.g., 24h, 7d). (Default: 24h)
 

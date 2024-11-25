@@ -7,12 +7,12 @@ export abstract class BaseLibClass {
   public readonly id: UUID;
 
   @Column({ nullable: true })
-  public userId: string | null;
+  public userId: UUID | null;
 
   @Column({ default: false })
   public favorite: boolean;
 
-  protected constructor(userId: string | null = null) {
+  protected constructor(userId: UUID | null = null) {
     this.id = crypto.randomUUID() as UUID;
     this.userId = userId;
     this.favorite = false;

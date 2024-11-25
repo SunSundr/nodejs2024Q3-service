@@ -1,4 +1,4 @@
-import { Entity, PrimaryColumn, Column, VersionColumn } from 'typeorm';
+import { Entity, PrimaryColumn, Column, VersionColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
 import { UUID } from 'crypto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { serialize } from '../common/utils/serialize';
@@ -9,10 +9,10 @@ export class User {
   @PrimaryColumn('uuid')
   readonly id: UUID;
 
-  @Column({ unique: true })
+  @Column({ unique: false })
   login: string;
 
-  @Column({ select: false })
+  @Column('varchar', { length: 255, select: false })
   private password: string; // hash string
 
   @VersionColumn()
@@ -51,12 +51,22 @@ export class User {
 
   updateFromDto(updateDto: UpdateUserDto): void {
     this.login = updateDto.login || this.login;
-    this.password = getHash(updateDto.newPassword) || this.password;
+    const newPasswordHash = getHash(updateDto.newPassword);
+    if (newPasswordHash) this.password = newPasswordHash;
     this.version++;
     this.updatedAt = Date.now();
   }
 
+  @BeforeInsert()
+  @BeforeUpdate()
+  protected async hashPassword(): Promise<void> {
+    if (this.password && !this.password.startsWith('$2b$')) {
+      this.password = getHash(this.password)!;
+    }
+  }
+
   async checkPassword(newPassword: string): Promise<boolean> {
+    if (newPassword === this.password) return false;
     return !(await checkPassword(newPassword, this.password));
   }
 

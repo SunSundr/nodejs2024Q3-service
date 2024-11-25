@@ -19,7 +19,7 @@ export class AuthGuard implements CanActivate {
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest<Request>();
-    if (request.url.startsWith('/doc')) return true;
+    // if (request.url.startsWith('/doc')) return true; // not used `/doc` is already public
 
     if (request.url.startsWith('/auth/refresh')) {
       // only for test refresh.e2e.spec.ts

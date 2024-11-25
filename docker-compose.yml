@@ -1,7 +1,6 @@
 services:
   app:
-    image: sunsundr/home-library-service-app:prod-watch
-    container_name: ${CONTAINER_NAME_APP}
+    image: sunsundr/home-library-service-app:dev-latest
     environment:
       PORT: ${PORT}
       DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
@@ -12,6 +11,7 @@ services:
       TYPEORM_DROPSCHEMA: ${TYPEORM_DROPSCHEMA}
       TYPEORM_LOGGING: ${TYPEORM_LOGGING}
       TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE}
+    container_name: ${CONTAINER_NAME_APP}
     restart: always
     develop:
       watch:
@@ -25,6 +25,7 @@ services:
       - "${PORT}:${PORT}"
     volumes:
       - ./src:/app/src
+      - ./logs:/app/logs
       - /app/node_modules
     depends_on:
       - postgres
@@ -32,7 +33,7 @@ services:
       - custom_bridge_network
 
   postgres:
-    image: sunsundr/home-library-service-postgres:latest
+    image: sunsundr/home-library-service-postgres:dev-latest
     container_name: ${CONTAINER_NAME_DB}
     restart: always
     env_file: .env
@@ -41,11 +42,14 @@ services:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
     ports:
       - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:
+      #- ./src/typeorm/init.sh:/docker-entrypoint-initdb.d/init.sh
       - postgres-data:/var/lib/postgresql/data
       - postgres-logs:/var/log/postgresql
+    #command: ["bash", "-c", "chmod +x /docker-entrypoint-initdb.d/init.sh && docker-entrypoint.sh postgres"]
     networks:
       - custom_bridge_network
 

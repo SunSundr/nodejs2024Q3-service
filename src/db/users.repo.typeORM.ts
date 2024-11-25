@@ -23,11 +23,12 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
   }
 
   async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
-    return await this.userRepository
+    const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
       .where('user.id = :id', { id })
       .getOne();
+    return user;
   }
 
   async getById(id: UUID): Promise<User | undefined> {

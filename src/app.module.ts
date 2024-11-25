@@ -12,12 +12,12 @@ import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LogInterceptor } from './log/log.interceptor';
 import { HttpExceptionFilter } from './log/httpException.filter';
 import { LogModule } from './log/log.module';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-// import { dataSourceOptions } from './typeorm/data-source-options';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dataSourceOptions } from './typeorm/data-source-options';
 
 @Module({
   imports: [
-    // TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRoot(dataSourceOptions),
     UsersModule,
     ArtistModule,
     TrackModule,

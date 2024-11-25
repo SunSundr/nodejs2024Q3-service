@@ -4,6 +4,7 @@ import { TrackDto } from './track.dto';
 import { Artist } from '../artist/artist.model';
 import { Album } from '../album/album.model';
 import { serialize } from 'src/common/utils/serialize';
+import { UUID } from 'crypto';
 
 @Entity()
 export class Track extends BaseLibClass {
@@ -11,10 +12,10 @@ export class Track extends BaseLibClass {
   public name: string;
 
   @Column({ nullable: true })
-  public artistId: string | null;
+  public artistId: UUID | null;
 
   @Column({ nullable: true })
-  public albumId: string | null;
+  public albumId: UUID | null;
 
   @Column({ default: 0 })
   public duration: number;
@@ -29,10 +30,10 @@ export class Track extends BaseLibClass {
   public album: null;
 
   private constructor(
-    userId: string | null,
+    userId: UUID | null,
     name: string,
-    artistId: string | null = null,
-    albumId: string | null = null,
+    artistId: UUID | null = null,
+    albumId: UUID | null = null,
     duration: number = 0,
   ) {
     super(userId);
@@ -42,7 +43,7 @@ export class Track extends BaseLibClass {
     this.duration = duration;
   }
 
-  static createFromDto(createDto: TrackDto, userId: string | null = null): Track {
+  static createFromDto(createDto: TrackDto, userId: UUID | null = null): Track {
     return new Track(
       userId,
       createDto.name,

@@ -27,7 +27,7 @@ services:
       - "${PORT}:${PORT}"
     volumes:
       - ./src:/app/src
-      # - .:/app
+      - ./logs:/app/logs
       - /app/node_modules
     depends_on:
       - postgres
@@ -47,6 +47,7 @@ services:
       DATABASE_USER: ${DATABASE_USER}
       DATABASE_NAME: ${DATABASE_NAME}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
     ports:
       - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:

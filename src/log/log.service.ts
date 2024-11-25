@@ -60,7 +60,11 @@ export class LogService extends ConsoleLogger {
     const stats = await fs.stat(filePath).catch(() => null);
     if (stats && stats.size / 1024 >= this.maxFileSizeKB) {
       const rotatedPath = filePath.replace('.log', `-${Date.now()}.log`);
-      await fs.rename(filePath, rotatedPath);
+      try {
+        await fs.rename(filePath, rotatedPath);
+      } catch {
+        // Suppressed error during log rotation, as it resolves itself and data is not lost
+      }
       await fs.appendFile(filePath, '');
     }
   }

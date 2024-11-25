@@ -20,7 +20,12 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<Request>();
     if (request.url.startsWith('/doc')) return true;
-    if (request.url.startsWith('/auth/refresh')) return true;
+
+    if (request.url.startsWith('/auth/refresh')) {
+      // only for test refresh.e2e.spec.ts
+      // https://discordapp.com/channels/755676888680366081/1308133060931489823/1310297884289138770
+      return true;
+    }
 
     const token = this.extractTokenFromHeader(request);
 
@@ -31,7 +36,7 @@ export class AuthGuard implements CanActivate {
 
     try {
       const payload = await this.jwtService.verifyAsync(token);
-      request['user'] = payload;
+      request['userID'] = payload.id;
       return true;
     } catch {
       console.log('Invalid or expired token');

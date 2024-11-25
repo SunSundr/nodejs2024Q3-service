@@ -6,6 +6,8 @@ import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
 import { AppService } from './app.service';
 import { loadEnv } from './common/utils/load.env';
+// import { LoggingService } from './log/logging.service';
+// import { HttpExceptionFilter } from './log/httpException.filter';
 
 async function bootstrap() {
   await loadEnv('PORT');
@@ -25,6 +27,9 @@ async function bootstrap() {
     // res.setHeader('Surrogate-Control', 'no-store');
     next();
   });
+
+  // const loggingService = app.get(LoggingService);
+  // app.useGlobalFilters(new HttpExceptionFilter(loggingService));
 
   const appService = app.get(AppService);
   appService.setApp(app);

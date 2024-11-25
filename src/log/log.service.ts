@@ -29,7 +29,9 @@ export class LogService extends ConsoleLogger {
     LogLevel.DEBUG,
     LogLevel.VERBOSE,
   ];
-  private readonly currentLogLevel = Number(process.env.LOG_LEVEL) || LOG_DEFAULT.logLevel;
+  private readonly currentLogLevel = process.env.LOG_LEVEL
+    ? Number(process.env.LOG_LEVEL)
+    : LOG_DEFAULT.logLevel;
   private readonly verboseStack = process.env.LOG_VERBOSE_STACK === 'true';
 
   constructor() {

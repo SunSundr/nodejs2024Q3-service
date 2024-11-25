@@ -7,8 +7,6 @@ import { COLOR, colorString } from './common/utils/color';
 import { AppService } from './app.service';
 import { loadEnv } from './common/utils/load.env';
 import { LogService } from './log/log.service';
-// import { LoggingService } from './log/logging.service';
-// import { HttpExceptionFilter } from './log/httpException.filter';
 
 async function bootstrap() {
   await loadEnv('PORT');
@@ -19,10 +17,10 @@ async function bootstrap() {
     process.exit(1);
   }
 
-  // const app = await NestFactory.create(AppModule);
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   const logger = app.get(LogService);
   app.useLogger(logger);
+
   app.use((_req: Request, res: Response, next: NextFunction) => {
     res.setHeader('Content-Type', 'application/json'); // 'text/html'
     // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
@@ -31,9 +29,6 @@ async function bootstrap() {
     // res.setHeader('Surrogate-Control', 'no-store');
     next();
   });
-
-  // const loggingService = app.get(LoggingService);
-  // app.useGlobalFilters(new HttpExceptionFilter(loggingService));
 
   const appService = app.get(AppService);
   appService.setApp(app);

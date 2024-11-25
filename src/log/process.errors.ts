@@ -1,9 +1,9 @@
 import { LogService } from './log.service';
 
 export function processErrors(loggingService: LogService) {
-  process.on('uncaughtException', (error) => {
+  process.on('uncaughtException', async (error) => {
     try {
-      loggingService.error(`Uncaught Exception: ${error.stack || error.message}`);
+      await loggingService.error(`Uncaught Exception: ${error.stack || error.message}`);
     } catch (err) {
       console.error('Failed to log uncaught exception:', err.message);
     } finally {

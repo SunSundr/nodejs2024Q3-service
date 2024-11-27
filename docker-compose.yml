@@ -1,6 +1,9 @@
 services:
   app:
-    image: sunsundr/home-library-service-app:dev-latest
+    #image: sunsundr/home-library-service-app:dev-latest
+    build:
+      context: .
+      dockerfile: ./docker/app/dockerfile
     environment:
       PORT: ${PORT}
       DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
@@ -35,6 +38,7 @@ services:
     volumes:
       - ./src:/app/src
       - ./logs:/app/logs
+      - ./doc:/app/doc
       - /app/node_modules
     depends_on:
       - postgres

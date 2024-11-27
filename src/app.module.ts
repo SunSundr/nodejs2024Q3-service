@@ -13,18 +13,26 @@ import { LogInterceptor } from './log/log.interceptor';
 import { HttpExceptionFilter } from './log/httpException.filter';
 import { LogModule } from './log/log.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { dataSourceOptions } from './typeorm/data-source-options';
+import { getDataSourceOptions } from './typeorm/data-source-options';
+// import { dataSourceOptions } from './typeorm/data-source-options';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot(dataSourceOptions),
+    ConfigModule.forRoot({ isGlobal: true }),
+    // TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => await getDataSourceOptions(configService),
+    }),
     UsersModule,
     ArtistModule,
     TrackModule,
     AlbumModule,
     FavoritesModule,
-    AuthModule,
     LogModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [

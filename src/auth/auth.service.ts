@@ -4,27 +4,32 @@ import { UsersService } from '../users/users.service';
 import { CreateUserDto } from 'src/users/user.dto';
 import { User } from 'src/users/user.model';
 import { LoginData, LoginDataWithToken } from './auth.login.interface';
-import { loadEnv } from 'src/common/utils/load.env';
+// import { loadEnv } from 'src/common/utils/load.env';
 import { JWT_DEFAULT } from 'src/app.config';
 import { UUID } from 'crypto';
+import { ConfigService } from '@nestjs/config';
 
-loadEnv(); // for dev-mode
+// loadEnv(); // for dev-mode
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(loginData: LoginData): Promise<LoginDataWithToken> {
     return {
       ...loginData,
       accessToken: await this.jwtService.signAsync(loginData, {
-        expiresIn: process.env.TOKEN_EXPIRE_TIME || JWT_DEFAULT.tokenExpireTime,
+        expiresIn: this.configService.get<string>('TOKEN_EXPIRE_TIME', JWT_DEFAULT.tokenExpireTime),
       }),
       refreshToken: await this.jwtService.signAsync(loginData, {
-        expiresIn: process.env.TOKEN_REFRESH_EXPIRE_TIME || JWT_DEFAULT.tokenRefreshExpireTime,
+        expiresIn: this.configService.get<string>(
+          'TOKEN_REFRESH_EXPIRE_TIME',
+          JWT_DEFAULT.tokenRefreshExpireTime,
+        ),
       }),
     };
   }

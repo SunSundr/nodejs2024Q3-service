@@ -195,6 +195,11 @@ paths:
               required:
                 - user
                 - login
+      responses:
+        201:
+          description: Successful signup
+        403:
+          description: Forbidden - Login already exists
   /auth/refresh:
     post:
       tags:

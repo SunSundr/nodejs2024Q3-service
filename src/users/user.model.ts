@@ -9,7 +9,7 @@ export class User {
   @PrimaryColumn('uuid')
   readonly id: UUID;
 
-  @Column({ unique: false })
+  @Column({ unique: true })
   login: string;
 
   @Column('varchar', { length: 255, select: false })

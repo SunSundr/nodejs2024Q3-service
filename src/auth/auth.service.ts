@@ -1,4 +1,9 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  // ConflictException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import { CreateUserDto } from 'src/users/user.dto';
@@ -36,6 +41,7 @@ export class AuthService {
 
   async signup(createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.createUser(createUserDto);
+    // throw new ConflictException();
   }
 
   async refreshToken(refreshTokenOld: string | null | undefined) {

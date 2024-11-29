@@ -25,22 +25,6 @@ import { ConfigService } from '@nestjs/config';
 
 // checkEnvVariables(requiredEnvVariables);
 
-// export const dataSourceOptions: DataSourceOptions = {
-//   type: 'postgres',
-//   host: process.env.DATABASE_HOST,
-//   port: parseInt(process.env.DATABASE_PORT, 10),
-//   username: process.env.DATABASE_USER,
-//   password: process.env.DATABASE_PASSWORD,
-//   database: process.env.DATABASE_NAME,
-//   entities: ['./dist/**/*.model.js'],
-//   migrations: ['./dist/typeorm/migrations/*.js'],
-//   migrationsRun: true,
-//   schema: process.env.DATABASE_SCHEMA,
-//   dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
-//   synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
-//   logging: process.env.TYPEORM_LOGGING === 'true',
-// };
-
 export const getDataSourceOptions = async (
   configService: ConfigService,
 ): Promise<DataSourceOptions> => ({

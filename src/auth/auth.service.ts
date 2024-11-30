@@ -11,7 +11,7 @@ import { User } from 'src/users/user.model';
 import { LoginData, LoginDataWithToken } from './auth.login.interface';
 // import { loadEnv } from 'src/common/utils/load.env';
 import { JWT_DEFAULT } from 'src/app.config';
-import { UUID } from 'crypto';
+// import { UUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';
 
 // loadEnv(); // for dev-mode
@@ -53,22 +53,22 @@ export class AuthService {
       throw new ForbiddenException('Invalid token format');
     }
 
-    let loginData: LoginData;
-    try {
-      loginData = await this.jwtService.decode(refreshTokenOld);
-    } catch (err) {
-      throw new ForbiddenException(
-        `Decode token error: ${err instanceof Error ? err.message : 'Unknown error'}`,
-      );
-    }
+    // let loginData: LoginData;
+    // try {
+    //   loginData = await this.jwtService.decode(refreshTokenOld);
+    // } catch (err) {
+    //   throw new ForbiddenException(
+    //     `Decode token error: ${err instanceof Error ? err.message : 'Unknown error'}`,
+    //   );
+    // }
 
-    const user = await this.usersService.getById(String(loginData.userId) as UUID);
-    if (!user) {
-      throw new UnauthorizedException('Unknown token');
-    }
+    // const user = await this.usersService.getById(String(loginData.userId) as UUID);
+    // if (!user) {
+    //   throw new UnauthorizedException('Unknown token');
+    // }
 
     try {
-      loginData = await this.jwtService.verifyAsync(refreshTokenOld);
+      const loginData = await this.jwtService.verifyAsync(refreshTokenOld);
       return await this.login({ userId: loginData.userId, login: loginData.login });
     } catch (err) {
       throw new ForbiddenException(

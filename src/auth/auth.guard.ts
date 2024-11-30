@@ -21,12 +21,6 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     // if (request.url.startsWith('/doc')) return true; // not used `/doc` is already public
 
-    if (request.url.startsWith('/auth/refresh')) {
-      // only for test refresh.e2e.spec.ts
-      // https://discordapp.com/channels/755676888680366081/1308133060931489823/1310297884289138770
-      return true;
-    }
-
     const token = this.extractTokenFromHeader(request);
 
     if (!token) {

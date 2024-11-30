@@ -19,7 +19,7 @@ export class Album extends BaseLibClass {
   // relations
   @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'artistId' })
-  public artist: null;
+  public artist: Artist | null;
 
   private constructor(
     userId: UUID | null,
@@ -46,6 +46,6 @@ export class Album extends BaseLibClass {
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite', 'artist']);
+    return serialize(this, ['user', 'userId', 'favorite', 'artist']);
   }
 }

@@ -23,11 +23,11 @@ export class Track extends BaseLibClass {
   // relations
   @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'artistId' })
-  public artist: null;
+  public artist: Artist | null;
 
   @ManyToOne(() => Album, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'albumId' })
-  public album: null;
+  public album: Album | null;
 
   private constructor(
     userId: UUID | null,
@@ -63,6 +63,6 @@ export class Track extends BaseLibClass {
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite', 'artist', 'album']);
+    return serialize(this, ['user', 'userId', 'favorite', 'artist', 'album']);
   }
 }

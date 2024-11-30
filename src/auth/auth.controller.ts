@@ -5,7 +5,6 @@ import { UsersService } from 'src/users/users.service';
 import { LoginData } from './auth.login.interface';
 import { RefreshTokenDto } from './auth.refresh.dto';
 import { Public } from 'src/common/utils/public.decorator';
-// import { TEST_USER_DTO } from 'src/app.config';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Auth')
@@ -23,7 +22,6 @@ export class AuthController {
   async signup(@Body() createUserDto: CreateUserDto) {
     const user = await this.userService.findByLogin(createUserDto.login);
     if (user) {
-      //&& createUserDto.login !== TEST_USER_DTO.login
       throw new ForbiddenException(`User "${createUserDto.login}" already exists`);
     }
     return await this.authService.signup(createUserDto);
@@ -46,6 +44,7 @@ export class AuthController {
   }
 
   @Post('refresh')
+  @Public()
   @ApiResponse({ status: HttpStatus.OK, description: 'Token refreshed' })
   @ApiResponse({ status: HttpStatus.UNAUTHORIZED, description: 'Invalid token' })
   @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Authentication failed' })

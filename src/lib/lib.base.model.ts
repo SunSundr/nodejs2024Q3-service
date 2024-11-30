@@ -1,6 +1,7 @@
 import { UUID } from 'crypto';
 import { serialize } from '../common/utils/serialize';
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { User } from 'src/users/user.model';
 
 export abstract class BaseLibClass {
   @PrimaryColumn('uuid')
@@ -12,6 +13,11 @@ export abstract class BaseLibClass {
   @Column({ default: false })
   public favorite: boolean;
 
+  // relations
+  @ManyToOne(() => User, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  public user: User | null;
+
   protected constructor(userId: UUID | null = null) {
     this.id = crypto.randomUUID() as UUID;
     this.userId = userId;
@@ -19,6 +25,6 @@ export abstract class BaseLibClass {
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite']);
+    return serialize(this, ['user', 'userId', 'favorite']);
   }
 }

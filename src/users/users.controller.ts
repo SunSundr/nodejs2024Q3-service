@@ -8,13 +8,14 @@ import {
   Body,
   Request,
   ParseUUIDPipe,
-  NotFoundException,
-  ForbiddenException,
+  // NotFoundException,
+  // ForbiddenException,
   UsePipes,
   HttpCode,
   ValidationPipe,
   UseInterceptors,
   HttpStatus,
+  // InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, OutputUserDTO } from './user.dto';
@@ -47,9 +48,7 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid ID format' })
   async getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID): Promise<User> {
-    const user = await this.usersService.getById(id);
-    if (!user) throw new NotFoundException('User not found');
-    return user;
+    return await this.usersService.getById(id);
   }
 
   @Post()
@@ -63,8 +62,7 @@ export class UsersController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid request body' })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const user = await this.usersService.createUser(createUserDto);
-    return user;
+    return await this.usersService.createUser(createUserDto);
   }
 
   @Put(':id')
@@ -90,10 +88,6 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @Request() req: RequestWithUser,
   ): Promise<User> {
-    const { user } = req;
-    if (!(await user.checkPassword(updateUserDto.newPassword))) {
-      throw new ForbiddenException('New password must be different from the current password');
-    }
     return await this.usersService.updateUser(req.user, updateUserDto);
   }
 

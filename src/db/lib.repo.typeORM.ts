@@ -94,15 +94,9 @@ export class LibTypeOrmRepository implements ILibRepository {
     };
   }
 
-  async addFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
+  async setFavs(id: UUID, type: LibNames, status: boolean, userId: UUID | null): Promise<void> {
     const { entity, repository } = await this.getFavsData(id, type, userId);
     if (!entity || !repository) return;
-    await repository.update(id, { favorite: true });
-  }
-
-  async removeFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
-    const { entity, repository } = await this.getFavsData(id, type, userId);
-    if (!entity || !repository) return;
-    await repository.update(id, { favorite: false });
+    await repository.update(id, { favorite: status });
   }
 }

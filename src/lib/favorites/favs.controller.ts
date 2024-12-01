@@ -7,7 +7,6 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
-  UnprocessableEntityException,
   UsePipes,
   ValidationPipe,
   Request,
@@ -18,7 +17,6 @@ import { LibService } from '../lib.service';
 import { Track } from 'src/lib/track/track.model';
 import { Artist } from 'src/lib/artist/artist.model';
 import { Album } from 'src/lib/album/album.model';
-import { LibNames, LibTypes, LibModels } from 'src/db/lib.repo.interface';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Favorites')
@@ -26,27 +24,11 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 export class FavoritesController {
   constructor(readonly libService: LibService) {}
 
-  private async setFavs(
-    owner: LibModels,
-    id: UUID,
-    add: boolean,
-    userId: UUID | null,
-  ): Promise<LibTypes | null> {
-    const entity = await this.libService.getById(owner, id, userId);
-    if (!entity) throw new UnprocessableEntityException(`${owner.name} not found`);
-    await this.libService.applyFavs(id, owner.name.toLowerCase() as LibNames, add, userId);
-    return entity;
-  }
-
-  protected getUserId(req: ExpressRequest): UUID | null {
-    return req['userId'] ? req['userId'] : null;
-  }
-
   @Get()
   @ApiOperation({ summary: 'Get all favorites' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Returns all favorite items' })
   async findAll(@Request() req: ExpressRequest) {
-    return await this.libService.getAllFavs(this.getUserId(req));
+    return await this.libService.getAllFavs(LibService.getUserId(req));
   }
 
   @Post('track/:id')
@@ -59,7 +41,7 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Track, id, true, this.getUserId(req));
+    return await this.libService.setFavorite(Track, id, true, LibService.getUserId(req));
   }
 
   @Delete('track/:id')
@@ -72,7 +54,7 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Track, id, false, this.getUserId(req));
+    return await this.libService.setFavorite(Track, id, false, LibService.getUserId(req));
   }
 
   @Post('album/:id')
@@ -85,7 +67,7 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Album, id, true, this.getUserId(req));
+    return await this.libService.setFavorite(Album, id, true, LibService.getUserId(req));
   }
 
   @Delete('album/:id')
@@ -98,7 +80,7 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Album, id, false, this.getUserId(req));
+    return await this.libService.setFavorite(Album, id, false, LibService.getUserId(req));
   }
 
   @Post('artist/:id')
@@ -111,7 +93,7 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Artist, id, true, this.getUserId(req));
+    return await this.libService.setFavorite(Artist, id, true, LibService.getUserId(req));
   }
 
   @Delete('artist/:id')
@@ -124,6 +106,6 @@ export class FavoritesController {
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID,
     @Request() req: ExpressRequest,
   ) {
-    return await this.setFavs(Artist, id, false, this.getUserId(req));
+    return await this.libService.setFavorite(Artist, id, false, LibService.getUserId(req));
   }
 }

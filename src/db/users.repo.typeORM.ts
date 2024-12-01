@@ -22,7 +22,7 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     return user;
   }
 
-  async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
+  async getUserWithPasswordById(id: UUID): Promise<User | null> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
@@ -31,7 +31,7 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     return user;
   }
 
-  async getById(id: UUID): Promise<User | undefined> {
+  async getById(id: UUID): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id } });
   }
 
@@ -41,10 +41,15 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
 
   async deleteByID(id: UUID): Promise<void> {
     await this.userRepository.delete(id);
-    return;
   }
 
-  async getByLogin(login: string): Promise<User | undefined> {
-    return this.userRepository.findOne({ where: { login } });
+  async getByLogin(login: string): Promise<User | null> {
+    // return this.userRepository.findOne({ where: { login } });
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.login = :login', { login })
+      .getOne();
+    return user;
   }
 }

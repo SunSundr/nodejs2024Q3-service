@@ -24,6 +24,7 @@ export class User {
       to: (value: number) => value,
       from: (value: string) => Number(value),
     },
+    update: false,
   })
   readonly createdAt: number;
 
@@ -65,9 +66,17 @@ export class User {
     }
   }
 
-  async checkPassword(newPassword: string): Promise<boolean> {
-    if (newPassword === this.password) return false;
-    return !(await checkPassword(newPassword, this.password));
+  async checkPassword(password: string): Promise<boolean | null> {
+    if (password === this.password) return true;
+    try {
+      return await checkPassword(password, this.password);
+    } catch (error) {
+      console.error(
+        'Error checking password:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+      return null;
+    }
   }
 
   toJSON(): { [key: string]: unknown } {

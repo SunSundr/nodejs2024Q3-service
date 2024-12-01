@@ -24,8 +24,7 @@ export interface ILibRepository {
   updateByID(obj: LibTypes, type: LibNames): Promise<LibTypes>;
   deleteByID(id: UUID, type: LibNames): Promise<void>;
   getFavs(userId: UUID | null): Promise<FavoritesJSON>;
-  addFavs(id: UUID, type: LibNames, userID: UUID | null): Promise<void>;
-  removeFavs(id: UUID, type: LibNames, userID: UUID | null): Promise<void>;
+  setFavs(id: UUID, type: LibNames, status: boolean, userId: UUID | null): Promise<void>;
 }
 
 export interface FavoritesJSON {

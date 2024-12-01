@@ -94,15 +94,13 @@ export class InMemoryLibRepository implements ILibRepository {
     return await this.favorites.getAll(userId);
   }
 
-  async addFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
+  async setFavs(id: UUID, type: LibNames, status: boolean, userId: UUID | null): Promise<void> {
     const { entity, map } = await this.getFavsData(id, type, userId);
     if (!entity || !map) return;
-    await this.favorites.add(entity, map);
-  }
-
-  async removeFavs(id: UUID, type: LibNames, userId: UUID | null): Promise<void> {
-    const { entity, map } = await this.getFavsData(id, type, userId);
-    if (!entity || !map) return;
-    await this.favorites.remove(entity, map);
+    if (status) {
+      await this.favorites.add(entity, map);
+    } else {
+      await this.favorites.remove(entity, map);
+    }
   }
 }

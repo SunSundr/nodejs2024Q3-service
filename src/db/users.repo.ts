@@ -18,28 +18,29 @@ export class InMemoryUserRepository implements IUserRepository {
     return user;
   }
 
-  async getById(id: UUID): Promise<User | undefined> {
-    return this.users.get(id);
+  async getById(id: UUID): Promise<User | null> {
+    const user = this.users.get(id);
+    return user || null;
   }
 
-  async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
-    return this.users.get(id);
+  async getUserWithPasswordById(id: UUID): Promise<User | null> {
+    const user = this.users.get(id);
+    return user || null;
   }
 
-  async getAll(): Promise<User[] | undefined> {
+  async getAll(): Promise<User[]> {
     return Array.from(this.users.values());
   }
 
   async deleteByID(id: UUID): Promise<void> {
     this.users.delete(id);
-    return;
   }
 
-  async getByLogin(login: string): Promise<User | undefined> {
+  async getByLogin(login: string): Promise<User | null> {
     const users = await this.getAll();
     for (const user of users) {
       if (user.login === login) return user;
     }
-    return undefined;
+    return null;
   }
 }

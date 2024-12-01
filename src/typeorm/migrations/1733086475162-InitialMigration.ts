@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class InitialMigration1732936587197 implements MigrationInterface {
-    name = 'InitialMigration1732936587197'
+export class InitialMigration1733086475162 implements MigrationInterface {
+    name = 'InitialMigration1733086475162'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
@@ -19,7 +19,7 @@ export class InitialMigration1732936587197 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "nodejs2024schema"."artist" (
                 "id" uuid NOT NULL,
-                "userId" character varying,
+                "userId" uuid,
                 "favorite" boolean NOT NULL DEFAULT false,
                 "name" character varying NOT NULL,
                 "grammy" boolean NOT NULL DEFAULT false,
@@ -29,7 +29,7 @@ export class InitialMigration1732936587197 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "nodejs2024schema"."album" (
                 "id" uuid NOT NULL,
-                "userId" character varying,
+                "userId" uuid,
                 "favorite" boolean NOT NULL DEFAULT false,
                 "name" character varying NOT NULL,
                 "year" integer,
@@ -40,7 +40,7 @@ export class InitialMigration1732936587197 implements MigrationInterface {
         await queryRunner.query(`
             CREATE TABLE "nodejs2024schema"."track" (
                 "id" uuid NOT NULL,
-                "userId" character varying,
+                "userId" uuid,
                 "favorite" boolean NOT NULL DEFAULT false,
                 "name" character varying NOT NULL,
                 "artistId" uuid,
@@ -50,9 +50,21 @@ export class InitialMigration1732936587197 implements MigrationInterface {
             )
         `);
         await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."artist"
+            ADD CONSTRAINT "FK_3c2c776c0a094c15d6c165494c0" FOREIGN KEY ("userId") REFERENCES "nodejs2024schema"."user"("id") ON DELETE CASCADE ON UPDATE NO ACTION
+        `);
+        await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."album"
+            ADD CONSTRAINT "FK_815bbf84cb5e82a56c85294d0fe" FOREIGN KEY ("userId") REFERENCES "nodejs2024schema"."user"("id") ON DELETE CASCADE ON UPDATE NO ACTION
+        `);
+        await queryRunner.query(`
             ALTER TABLE "nodejs2024schema"."album"
             ADD CONSTRAINT "FK_3d06f25148a4a880b429e3bc839" FOREIGN KEY ("artistId") REFERENCES "nodejs2024schema"."artist"("id") ON DELETE
             SET NULL ON UPDATE NO ACTION
+        `);
+        await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."track"
+            ADD CONSTRAINT "FK_92ddd84d4282ef453317fcd5529" FOREIGN KEY ("userId") REFERENCES "nodejs2024schema"."user"("id") ON DELETE CASCADE ON UPDATE NO ACTION
         `);
         await queryRunner.query(`
             ALTER TABLE "nodejs2024schema"."track"
@@ -74,7 +86,16 @@ export class InitialMigration1732936587197 implements MigrationInterface {
             ALTER TABLE "nodejs2024schema"."track" DROP CONSTRAINT "FK_997cfd9e91fd00a363500f72dc2"
         `);
         await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."track" DROP CONSTRAINT "FK_92ddd84d4282ef453317fcd5529"
+        `);
+        await queryRunner.query(`
             ALTER TABLE "nodejs2024schema"."album" DROP CONSTRAINT "FK_3d06f25148a4a880b429e3bc839"
+        `);
+        await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."album" DROP CONSTRAINT "FK_815bbf84cb5e82a56c85294d0fe"
+        `);
+        await queryRunner.query(`
+            ALTER TABLE "nodejs2024schema"."artist" DROP CONSTRAINT "FK_3c2c776c0a094c15d6c165494c0"
         `);
         await queryRunner.query(`
             DROP TABLE "nodejs2024schema"."track"

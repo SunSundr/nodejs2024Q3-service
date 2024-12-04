@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -16,23 +16,43 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDataSourceOptions } from './typeorm/data-source-options';
 // import { dataSourceOptions } from './typeorm/data-source-options';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { OrmTypes, validateEnv } from './common/utils/validate.env';
+
+function initDbType(): DynamicModule[] {
+  switch (process.env.ORM_TYPE) {
+    case OrmTypes.TYPEORM:
+      return [
+        // TypeOrmModule.forRoot(dataSourceOptions),
+        TypeOrmModule.forRootAsync({
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: async (configService: ConfigService) =>
+            await getDataSourceOptions(configService),
+        }),
+      ];
+    case OrmTypes.PRISMA:
+      return [];
+    default:
+      return [];
+  }
+}
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    // TypeOrmModule.forRoot(dataSourceOptions),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => await getDataSourceOptions(configService),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      cache: true,
+      ignoreEnvFile: true,
+      validate: validateEnv,
     }),
-    UsersModule,
+    ...initDbType(),
+    UsersModule.forRoot(),
+    AuthModule,
     ArtistModule,
     TrackModule,
     AlbumModule,
     FavoritesModule,
     LogModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [

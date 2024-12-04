@@ -25,7 +25,7 @@ export class AuthService {
     if (user) {
       throw new ConflictException(`User "${createUserDto.login}" already exists`);
     }
-    return this.usersService.createUser(createUserDto);
+    return await this.usersService.createUser(createUserDto);
   }
 
   async login(createUserDto: CreateUserDto): Promise<LoginDataWithToken> {

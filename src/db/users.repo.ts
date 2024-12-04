@@ -8,6 +8,10 @@ import { UpdateUserDto } from 'src/users/user.dto';
 export class InMemoryUserRepository implements IUserRepository {
   private readonly users: Map<UUID, User> = new Map();
 
+  constructor() {
+    console.log('InMemoryUserRepository');
+  }
+
   async saveEntyty(user: User): Promise<User> {
     this.users.set(user.id, user);
     return user;

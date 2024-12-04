@@ -20,6 +20,7 @@ export class UsersService {
     try {
       return await this.userRepository.saveEntyty(newUser);
     } catch (error) {
+      // REMOVE (?)
       const msg = error instanceof Error ? error.message : 'Invalid user data';
       console.error('Error:', msg);
       throw new UnprocessableEntityException(msg);

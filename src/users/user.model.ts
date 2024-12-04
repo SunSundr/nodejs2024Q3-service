@@ -51,11 +51,13 @@ export class User {
   }
 
   updateFromDto(updateDto: UpdateUserDto): void {
-    this.login = updateDto.login || this.login;
+    if (updateDto.login) this.login = updateDto.login;
     const newPasswordHash = getHash(updateDto.newPassword);
-    if (newPasswordHash) this.password = newPasswordHash;
-    this.version++;
-    this.updatedAt = Date.now();
+    if (newPasswordHash) {
+      this.password = newPasswordHash;
+      this.version++;
+      this.updatedAt = Date.now();
+    }
   }
 
   @BeforeInsert()

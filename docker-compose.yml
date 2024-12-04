@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: ./docker/app/dockerfile
+    container_name: ${CONTAINER_NAME_APP}
+    env_file: .env
     environment:
       PORT: ${PORT}
       DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
@@ -24,8 +26,7 @@ services:
       LOG_VERBOSE_STACK: ${LOG_VERBOSE_STACK}
       ENV_LOADED: ${ENV_LOADED}
       ORM_TYPE: ${ORM_TYPE}
-    container_name: ${CONTAINER_NAME_APP}
-    restart: always
+    restart: on-failure
     develop:
       watch:
         - action: rebuild
@@ -33,7 +34,6 @@ services:
           target: /app/src
           ignore:
             - node_modules/
-    env_file: .env
     ports:
       - "${PORT}:${PORT}"
     volumes:
@@ -52,7 +52,7 @@ services:
       context: ./docker/postgres
       dockerfile: dockerfile
     container_name: ${CONTAINER_NAME_DB}
-    restart: always
+    restart: on-failure
     env_file: .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

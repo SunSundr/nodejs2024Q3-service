@@ -1,14 +1,18 @@
 import { NestFactory } from '@nestjs/core';
-import { ConfigService } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Request, Response, NextFunction } from 'express';
-import { AppModule } from './app.module';
+// import { AppModule } from './app.module';
 import { AppService } from './app.service';
 import { LogService } from './log/log.service';
 import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
+import { validateEnv } from './common/utils/validate.env';
+import { isRunningInContainer } from './common/utils/isRunningInContainer';
 
 async function bootstrap() {
+  if (!isRunningInContainer()) await ConfigModule.forRoot({ validate: validateEnv });
+  const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   try {
     app.useLogger(app.get(LogService));

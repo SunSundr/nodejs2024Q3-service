@@ -11,7 +11,7 @@ import { LogModule } from 'src/log/log.module';
   imports: [
     ConfigModule,
     LogModule,
-    UsersModule,
+    UsersModule.forFeature(),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

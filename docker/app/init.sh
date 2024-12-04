@@ -1,9 +1,10 @@
 #!/bin/sh
-
-until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
-    echo "PostgreSQL is not ready yet. Waiting..."
-    sleep 2
-done
+if [ "$ORM_TYPE" != "memory" ]; then
+    until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
+        echo "PostgreSQL is not ready yet. Waiting..."
+        sleep 2
+    done
+fi
 
 FLAG_FILE="/app/.first_start_flag"
 

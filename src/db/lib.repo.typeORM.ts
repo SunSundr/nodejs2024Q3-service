@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Optional } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Track } from '../lib/track/track.model';
 import { Artist } from '../lib/artist/artist.model';
@@ -10,9 +10,9 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class LibTypeOrmRepository implements ILibRepository {
   constructor(
-    @InjectRepository(Artist) private readonly artistRepository: Repository<Artist>,
-    @InjectRepository(Track) private readonly trackRepository: Repository<Track>,
-    @InjectRepository(Album) private readonly albumRepository: Repository<Album>,
+    @Optional() @InjectRepository(Artist) private readonly artistRepository?: Repository<Artist>,
+    @Optional() @InjectRepository(Track) private readonly trackRepository?: Repository<Track>,
+    @Optional() @InjectRepository(Album) private readonly albumRepository?: Repository<Album>,
   ) {}
 
   private getRepository(type: LibNames): Repository<Artist | Track | Album> | undefined {

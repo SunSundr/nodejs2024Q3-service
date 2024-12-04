@@ -8,14 +8,11 @@ import {
   Body,
   Request,
   ParseUUIDPipe,
-  // NotFoundException,
-  // ForbiddenException,
   UsePipes,
   HttpCode,
   ValidationPipe,
   UseInterceptors,
   HttpStatus,
-  // InternalServerErrorException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto, UpdateUserDto, OutputUserDTO } from './user.dto';
@@ -88,6 +85,7 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @Request() req: RequestWithUser,
   ): Promise<User> {
+    console.log(req.user);
     return await this.usersService.updateUser(req.user, updateUserDto);
   }
 
@@ -100,6 +98,6 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid ID format' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   async deleteUser(@Request() req: RequestWithUser): Promise<boolean> {
-    return this.usersService.delete(req.user);
+    return await this.usersService.delete(req.user);
   }
 }

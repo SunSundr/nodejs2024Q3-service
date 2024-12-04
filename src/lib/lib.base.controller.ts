@@ -77,6 +77,6 @@ export abstract class LibBaseController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: ExpressRequest): Promise<void> {
     const { entity } = await this.libService.requestValidate(req, this.owner, this.dtoClass);
-    return this.libService.delete(this.owner, entity);
+    return await this.libService.delete(this.owner, entity);
   }
 }

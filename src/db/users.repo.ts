@@ -5,11 +5,11 @@ import { IUserRepository } from './users.repo.interface';
 import { UpdateUserDto } from 'src/users/user.dto';
 
 @Injectable()
-export class InMemoryUserRepository implements IUserRepository {
+export class UserInMemoryRepository implements IUserRepository {
   private readonly users: Map<UUID, User> = new Map();
 
   constructor() {
-    console.log('InMemoryUserRepository');
+    console.log('UserInMemoryRepository');
   }
 
   async saveEntyty(user: User): Promise<User> {

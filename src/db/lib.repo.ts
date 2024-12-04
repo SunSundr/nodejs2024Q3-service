@@ -7,7 +7,7 @@ import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.in
 import { Favorites } from './lib.favs.model';
 
 @Injectable()
-export class InMemoryLibRepository implements ILibRepository {
+export class LibInMemoryRepository implements ILibRepository {
   private readonly artists = new Map<UUID, Artist>();
   private readonly tracks = new Map<UUID, Track>();
   private readonly albums = new Map<UUID, Album>();

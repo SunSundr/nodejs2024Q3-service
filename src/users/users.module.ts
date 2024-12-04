@@ -2,7 +2,7 @@ import { Module, DynamicModule, ModuleMetadata } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
 import { User } from '../users/user.model';
-import { InMemoryUserRepository } from '../db/users.repo';
+import { UserInMemoryRepository } from '../db/users.repo';
 import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
@@ -10,7 +10,7 @@ import { OrmTypes } from 'src/common/utils/validate.env';
 // @Module({
 //   imports: [TypeOrmModule.forFeature([User])],
 //   controllers: [UsersController],
-//   // providers: [UsersService, { provide: 'IUserRepository', useClass: InMemoryUserRepository }],
+//   // providers: [UsersService, { provide: 'IUserRepository', useClass: UserInMemoryRepository }],
 //   providers: [UsersService, { provide: 'IUserRepository', useClass: UserTypeOrmRepository }],
 //   exports: [UsersService],
 // })
@@ -36,13 +36,11 @@ export class UsersModule {
 
     const ormType = process.env.ORM_TYPE;
     if (ormType === OrmTypes.MEMORY) {
-      // providers.push({ provide: 'IUserRepository', useClass: InMemoryUserRepository });
-      const iUserRepo = new InMemoryUserRepository();
+      // providers.push({ provide: 'IUserRepository', useClass: UserInMemoryRepository });
+      let iUserRepo: UserInMemoryRepository;
       providers.push({
         provide: 'IUserRepository',
-        useFactory() {
-          return iUserRepo;
-        },
+        useFactory: () => iUserRepo || (iUserRepo = new UserInMemoryRepository()),
       });
     } else if (ormType === OrmTypes.TYPEORM) {
       imports.push(TypeOrmModule.forFeature([User]));

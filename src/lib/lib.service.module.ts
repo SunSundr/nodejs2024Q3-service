@@ -1,6 +1,6 @@
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 import { LibService } from './lib.service';
-import { InMemoryLibRepository } from '../db/lib.repo';
+import { LibInMemoryRepository } from '../db/lib.repo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/users/user.model';
 // import { Artist } from './artist/artist.model';
@@ -13,7 +13,7 @@ import { OrmTypes } from 'src/common/utils/validate.env';
 // @Module({
 //   imports: [TypeOrmModule.forFeature([User, Artist, Track, Album])],
 //   providers: [LibService, { provide: 'ILibRepository', useClass: LibTypeOrmRepository }],
-//   // providers: [LibService, { provide: 'ILibRepository', useClass: InMemoryLibRepository }],
+//   // providers: [LibService, { provide: 'ILibRepository', useClass: LibInMemoryRepository }],
 //   exports: [LibService],
 // })
 // export class LibServiceModule {}
@@ -24,13 +24,19 @@ interface LibServiceOptions {
 
 @Module({})
 export class LibServiceModule {
+  private static libRepository: LibInMemoryRepository;
+
   static register(options: LibServiceOptions): DynamicModule {
     const imports: ModuleMetadata['imports'] = [];
     const providers: ModuleMetadata['providers'] = [LibService];
 
     const ormType = process.env.ORM_TYPE;
     if (ormType === OrmTypes.MEMORY) {
-      providers.push({ provide: 'ILibRepository', useClass: InMemoryLibRepository });
+      // providers.push({ provide: 'ILibRepository', useClass: LibInMemoryRepository });
+      providers.push({
+        provide: 'ILibRepository',
+        useFactory: () => this.libRepository || (this.libRepository = new LibInMemoryRepository()),
+      });
     } else if (ormType === OrmTypes.TYPEORM) {
       const typeormRepo = options.typeormRepo ?? [];
       imports.push(TypeOrmModule.forFeature([User, ...typeormRepo]));

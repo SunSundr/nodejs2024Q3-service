@@ -20,4 +20,4 @@ if [ "$ORM_TYPE" = "typeorm" ]; then
     fi
 fi
 
-node dist/main.js
+exec node dist/main.js

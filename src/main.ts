@@ -15,7 +15,9 @@ async function bootstrap() {
   const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   try {
-    app.useLogger(app.get(LogService));
+    const logger = app.get(LogService);
+    await logger.init();
+    app.useLogger(logger);
 
     const port = app.get(ConfigService)?.get<number>('PORT');
     if (!port) throw new Error('PORT environment variable is not defined.');
@@ -31,6 +33,8 @@ async function bootstrap() {
 
     app.get(AppService)?.setApp(app);
     runSwagger(app);
+
+    // app.enableShutdownHooks();
 
     await app.listen(port);
 

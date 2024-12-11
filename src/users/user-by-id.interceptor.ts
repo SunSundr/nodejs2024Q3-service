@@ -41,8 +41,6 @@ export class UserByIdInterceptor implements NestInterceptor {
         : await this.userRepository.getById(id);
 
     if (!user) {
-      console.log(`User with id ${id} not found`);
-      console.log(await this.userRepository.getAll());
       throw new NotFoundException(`User with id ${id} not found`);
     }
 

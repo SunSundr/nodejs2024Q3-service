@@ -7,11 +7,18 @@ import { LogService } from './log/log.service';
 import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
-import { validateEnv } from './common/utils/validate.env';
+import { OrmTypes, validateEnv } from './common/utils/validate.env';
 import { isRunningInContainer } from './common/utils/isRunningInContainer';
 
 async function bootstrap() {
-  if (!isRunningInContainer()) await ConfigModule.forRoot({ validate: validateEnv });
+  if (!isRunningInContainer()) {
+    await ConfigModule.forRoot({ validate: validateEnv });
+    if (process.env.ORM_TYPE !== OrmTypes.MEMORY) {
+      await (
+        await import('./db/init')
+      ).default;
+    }
+  }
   const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   try {

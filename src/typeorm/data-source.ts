@@ -1,7 +1,8 @@
-// import 'reflect-metadata';
 import { DataSource } from 'typeorm';
-import * as dotenv from 'dotenv';
-dotenv.config();
+import { isRunningInContainer } from 'src/common/utils/isRunningInContainer';
+import { loadEnv } from 'src/common/utils/load.env';
+
+if (!isRunningInContainer()) loadEnv();
 
 export default new DataSource({
   type: 'postgres',
@@ -12,11 +13,11 @@ export default new DataSource({
   database: process.env.DATABASE_NAME,
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
-  migrationsRun: true,
+  // migrationsRun: true,
   schema: process.env.DATABASE_SCHEMA,
-  dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
-  synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
-  logging: process.env.TYPEORM_LOGGING === 'true',
+  // dropSchema: process.env.TYPEORM_DROPSCHEMA === 'true',
+  // synchronize: process.env.TYPEORM_SYNCHRONIZE === 'true',
+  // logging: process.env.TYPEORM_LOGGING === 'true',
 });
 
 // import { NestFactory } from '@nestjs/core';

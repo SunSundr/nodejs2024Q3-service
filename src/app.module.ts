@@ -17,9 +17,7 @@ import { getDataSourceOptions } from './typeorm/data-source-options';
 // import { dataSourceOptions } from './typeorm/data-source-options';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrmTypes, validateEnv } from './common/utils/validate.env';
-// import { appConfigServiceProvider } from './app.configService';
-// import { envCongig } from './app.config';
-// import configuration from 'envconfig';
+import { appConfigServiceProvider } from './app.config.service';
 
 function initDbType(): DynamicModule[] {
   switch (process.env.ORM_TYPE) {
@@ -30,7 +28,7 @@ function initDbType(): DynamicModule[] {
           imports: [ConfigModule],
           inject: [ConfigService],
           useFactory: async (configService: ConfigService) =>
-            await getDataSourceOptions(configService),
+            await getDataSourceOptions(appConfigServiceProvider['useFactory'](configService)),
         }),
       ];
     case OrmTypes.PRISMA:
@@ -44,7 +42,7 @@ function initDbType(): DynamicModule[] {
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      // cache: true,
+      cache: true,
       ignoreEnvFile: true,
       validate: validateEnv,
     }),

@@ -1,8 +1,27 @@
-import { ENV_LOADED } from 'src/app.config';
+import { readFileSync } from 'fs';
 
-export async function loadEnv(eVar: string = ENV_LOADED): Promise<void> {
-  if (!process.env[eVar]) {
-    const dotenv = await import('dotenv');
-    dotenv.config();
+export function loadEnv(filePath: string = '.env'): void {
+  try {
+    const content = readFileSync(filePath, 'utf-8');
+    const lines = content.split('\n');
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+
+      if (!trimmedLine || trimmedLine.startsWith('#')) {
+        continue;
+      }
+
+      const [key, ...valueParts] = trimmedLine.split('=');
+      const keyTrimmed = key.trim();
+
+      const value = valueParts.join('=').trim();
+
+      if (!process.env[keyTrimmed]) {
+        process.env[keyTrimmed] = value.replace(/^['"]|['"]$/g, '');
+      }
+    }
+  } catch (err) {
+    console.error(`Error loading .env file at ${filePath}:`, err.message);
   }
 }

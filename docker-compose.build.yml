@@ -21,7 +21,7 @@ services:
       LOG_FILE_MAX_SIZE_KB: ${LOG_FILE_MAX_SIZE_KB}
       LOG_LEVEL: ${LOG_LEVEL}
       LOG_VERBOSE_STACK: ${LOG_VERBOSE_STACK}
-      ENV_LOADED: ${ENV_LOADED}
+      # ENV_LOADED: ${ENV_LOADED}
     container_name: ${CONTAINER_NAME_APP}
     restart: always
     develop:

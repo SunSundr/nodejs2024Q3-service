@@ -24,7 +24,7 @@ services:
       LOG_FILE_MAX_SIZE_KB: ${LOG_FILE_MAX_SIZE_KB}
       LOG_LEVEL: ${LOG_LEVEL}
       LOG_VERBOSE_STACK: ${LOG_VERBOSE_STACK}
-      ENV_LOADED: ${ENV_LOADED}
+      # ENV_LOADED: ${ENV_LOADED}
       ORM_TYPE: ${ORM_TYPE}
     restart: on-failure
     develop:
@@ -42,6 +42,7 @@ services:
       - ./logs:/app/logs
       - ./doc:/app/doc
       - /app/node_modules
+      - app-data:/app/data
     depends_on:
       - postgres
     networks:
@@ -75,6 +76,7 @@ services:
 volumes:
   postgres-data:
   postgres-logs:
+  app-data:
 
 networks:
   custom_bridge_network:

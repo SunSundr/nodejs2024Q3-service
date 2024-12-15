@@ -48,6 +48,10 @@ export interface FilesData {
   mtimeMs: number;
 }
 
+export interface LogOptions {
+  msgRaw?: string;
+}
+
 @Injectable()
 export class LogService extends ConsoleLogger implements OnApplicationShutdown {
   private currentLogLevel: number;
@@ -62,14 +66,17 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
   private filesCache: FilesData[] = [];
   private scheduler?: NodeJS.Timeout;
 
-  private logFile = {} as LogData;
-  private errFile = {} as LogData;
+  private readonly logFile = {} as LogData;
+  private readonly errFile = {} as LogData;
 
   private errorDetected = false;
   private isCleaning = false;
+  private isInitialized = false;
+  private readonly bufferLogs: [fileData: LogData, message: string][] = [];
 
   constructor(@Inject(APP_CONFIG_SERVICE) private readonly appConfigService: AppConfigService) {
     super();
+    this.initConfig();
   }
 
   onApplicationShutdown(_signal: string) {
@@ -78,20 +85,21 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
 
   async init(): Promise<void> {
     try {
-      this.initConfig();
+      if (this.isInitialized) return;
+      // this.initConfig();
       await fs.mkdir(LOG_DIR, { recursive: true });
 
       const logFiles = await this.findLatestLogFiles();
       const time = Date.now();
 
       if (logFiles.app && logFiles.app.size < this.maxFileSize) {
-        this.logFile = logFiles.app;
+        Object.assign(this.logFile, logFiles.app);
       } else {
         await this.updateLogData(this.logFile, time);
       }
 
       if (logFiles.err && logFiles.err.size < this.maxFileSize) {
-        this.errFile = logFiles.err;
+        Object.assign(this.errFile, logFiles.err);
       } else {
         await this.updateLogData(this.errFile, time);
       }
@@ -101,8 +109,11 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
       this.initScheduler();
 
       processErrors(this);
+      this.isInitialized = true;
+      await Promise.all(this.bufferLogs.map((log) => this.logToFile(...log)));
+      this.bufferLogs.length = 0;
     } catch (err) {
-      this.handleError('Error creating logs directory', err);
+      this.handleError('Logger initialization error', err);
     }
   }
 
@@ -242,6 +253,10 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
 
   private async logToFile(fileData: LogData, message: string): Promise<void> {
     if (this.errorDetected) return;
+    if (!this.isInitialized) {
+      this.bufferLogs.push([fileData, message]);
+      return;
+    }
     const writeError = (err: Error) => this.handleError('Error writing to log file', err);
     try {
       // const addition = Buffer.from(message).length;
@@ -270,17 +285,32 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
     return levelIndex !== -1 && levelIndex <= this.currentLogLevel;
   }
 
-  async log(message: string, context?: string): Promise<void> {
+  async log(message: string, context?: string, options: LogOptions = {}): Promise<void> {
     if (!this.shouldLog(LogLevel.LOG)) return;
-    const formatted = this.formatLogMessage(LogLevel.LOG, message, context);
+    const formatted = this.formatLogMessage(LogLevel.LOG, options.msgRaw || message, context);
     super.log(message || '', context || '');
     await this.logToFile(this.logFile, formatted);
   }
 
-  async error(message: string, stack?: string, context?: string): Promise<void> {
+  async warn(message: string, context?: string, options: LogOptions = {}): Promise<void> {
+    if (!this.shouldLog(LogLevel.WARN)) return;
+
+    const formatted = this.formatLogMessage(LogLevel.WARN, options.msgRaw || message, context);
+    super.warn(message || '', context || '');
+    await this.logToFile(this.logFile, formatted);
+  }
+
+  async error(
+    message: string,
+    stack?: string,
+    context?: string,
+    options: LogOptions = {},
+  ): Promise<void> {
     if (!this.shouldLog(LogLevel.ERROR)) return;
 
-    const formattedMessage = this.verboseStack ? `${message} - ${stack || ''}` : message;
+    const formattedMessage = this.verboseStack
+      ? `${options.msgRaw || message} - ${stack || ''}`
+      : options.msgRaw || message;
 
     const formatted = this.formatLogMessage(LogLevel.ERROR, formattedMessage, context);
     super.error(message || '', this.verboseStack ? stack : undefined, context || '');
@@ -290,26 +320,18 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
     ]);
   }
 
-  async warn(message: string, context?: string): Promise<void> {
-    if (!this.shouldLog(LogLevel.WARN)) return;
-
-    const formatted = this.formatLogMessage(LogLevel.WARN, message, context);
-    super.warn(message || '', context || '');
-    await this.logToFile(this.logFile, formatted);
-  }
-
-  async debug(message: string, context?: string): Promise<void> {
+  async debug(message: string, context?: string, options: LogOptions = {}): Promise<void> {
     if (!this.shouldLog(LogLevel.DEBUG)) return;
 
-    const formatted = this.formatLogMessage(LogLevel.DEBUG, message, context);
+    const formatted = this.formatLogMessage(LogLevel.DEBUG, options.msgRaw || message, context);
     super.debug(message || '', context || '');
     await this.logToFile(this.logFile, formatted);
   }
 
-  async verbose(message: string, context?: string): Promise<void> {
+  async verbose(message: string, context?: string, options: LogOptions = {}): Promise<void> {
     if (!this.shouldLog(LogLevel.VERBOSE)) return;
 
-    const formatted = this.formatLogMessage(LogLevel.VERBOSE, message, context);
+    const formatted = this.formatLogMessage(LogLevel.VERBOSE, options.msgRaw || message, context);
     super.verbose(message || '', context || '');
     await this.logToFile(this.logFile, formatted);
   }

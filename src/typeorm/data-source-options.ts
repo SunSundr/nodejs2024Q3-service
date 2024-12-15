@@ -3,6 +3,8 @@ import { DataSourceOptions } from 'typeorm';
 // import { ConfigService } from '@nestjs/config';
 import { AppConfigService } from 'src/app.config.service';
 import { DOCKER_OFF } from 'src/app.config';
+import { LogService } from 'src/log/log.service';
+import { TypeORMLogger } from './logger';
 // import * as dotenv from 'dotenv';
 // dotenv.config();
 
@@ -47,6 +49,7 @@ import { DOCKER_OFF } from 'src/app.config';
 
 export const getDataSourceOptions = async (
   appConfigService: AppConfigService,
+  logService: LogService,
 ): Promise<DataSourceOptions> => ({
   type: 'postgres',
   host: appConfigService.getString('DATABASE_HOST'),
@@ -64,5 +67,7 @@ export const getDataSourceOptions = async (
   schema: appConfigService.getString('DATABASE_SCHEMA'),
   dropSchema: appConfigService.getBoolean('TYPEORM_DROPSCHEMA', false),
   synchronize: appConfigService.getBoolean('TYPEORM_SYNCHRONIZE', false),
-  logging: appConfigService.getBoolean('TYPEORM_LOGGING', false),
+  ...(appConfigService.getBoolean('TYPEORM_LOGGING', false)
+    ? { logger: new TypeORMLogger(logService) }
+    : { logging: false }),
 });

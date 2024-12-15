@@ -3,10 +3,15 @@ import { DOCKER_OFF } from 'src/app.config';
 import { COLOR, colorString } from 'src/common/utils/color';
 
 async function initializeDatabase(): Promise<void> {
-  const formatPrefix = (color = COLOR.magenta) => colorString(color, '[DATABASE INIT]');
-  const format = (msg: string, color = COLOR.yellow) => colorString(color, `"${msg}"`);
+  const defaultColor = COLOR.gray;
+  const pid = process.pid;
+  const formatPrefix = (color = COLOR.green) =>
+    colorString(color, `[DATABASE INIT] ${pid} - `) +
+    new Date().toLocaleTimeString() +
+    colorString(COLOR.green, ' |');
+  const format = (msg: string, color = COLOR.white) => colorString(color, `"${msg}"`);
   const print = (...msg: string[]) => console.log(formatPrefix(), ...msg);
-  const etc = colorString(COLOR.green, '...');
+  const etc = colorString(defaultColor, '...');
 
   const {
     DATABASE_HOST,
@@ -20,7 +25,7 @@ async function initializeDatabase(): Promise<void> {
   let client: Client;
 
   try {
-    print(colorString(COLOR.green, 'Connecting to PostgreSQL...'));
+    print(colorString(defaultColor, 'Connecting to PostgreSQL...'));
 
     client = new Client({
       host: DATABASE_HOST,
@@ -37,7 +42,7 @@ async function initializeDatabase(): Promise<void> {
       [DATABASE_USER],
     );
     if (!userExists.rows[0].exists) {
-      print(colorString(COLOR.green, 'Creating USER'), format(DATABASE_USER) + etc);
+      print(colorString(defaultColor, 'Creating USER'), format(DATABASE_USER) + etc);
       await client.query(`CREATE USER "${DATABASE_USER}" WITH PASSWORD '${DATABASE_PASSWORD}';`);
     }
 
@@ -49,7 +54,7 @@ async function initializeDatabase(): Promise<void> {
     );
 
     if (!dbExists.rows[0].exists) {
-      print(colorString(COLOR.green, 'Creating DATABASE'), format(DATABASE_NAME) + etc);
+      print(colorString(defaultColor, 'Creating DATABASE'), format(DATABASE_NAME) + etc);
       await client.query(`CREATE DATABASE "${DATABASE_NAME}" OWNER "${DATABASE_USER}";`);
     } else {
       const privilegesCheck = await client.query<{ has_connect: boolean; has_create: boolean }>(
@@ -63,23 +68,23 @@ async function initializeDatabase(): Promise<void> {
 
       if (!has_connect || !has_create) {
         print(
-          colorString(COLOR.green, 'Granting necessary privileges to'),
+          colorString(defaultColor, 'Granting necessary privileges to'),
           format(DATABASE_USER),
-          colorString(COLOR.green, 'on database'),
+          colorString(defaultColor, 'on database'),
           format(DATABASE_NAME) + etc,
         );
 
         if (!has_connect) {
           await client.query(`GRANT CONNECT ON DATABASE "${DATABASE_NAME}" TO "${DATABASE_USER}";`);
-          print(colorString(COLOR.green, 'Granted CONNECT privilege to'), format(DATABASE_USER));
+          print(colorString(defaultColor, 'Granted CONNECT privilege to'), format(DATABASE_USER));
         }
 
         if (!has_create) {
           await client.query(`GRANT CREATE ON DATABASE "${DATABASE_NAME}" TO "${DATABASE_USER}";`);
-          print(colorString(COLOR.green, 'Granted CREATE privilege to'), format(DATABASE_USER));
+          print(colorString(defaultColor, 'Granted CREATE privilege to'), format(DATABASE_USER));
         }
 
-        // All CONTROL:
+        // All CONTROLS:
         //-----------------------------------------------------------------------------------
         // await client.query(`
         //   GRANT CONNECT ON DATABASE "${DATABASE_NAME}" TO "${DATABASE_USER}";
@@ -107,7 +112,7 @@ async function initializeDatabase(): Promise<void> {
       [DATABASE_SCHEMA],
     );
     if (!schemaExists.rows[0].exists) {
-      print(colorString(COLOR.green, 'Creating SCHEMA'), format(DATABASE_SCHEMA) + etc);
+      print(colorString(defaultColor, 'Creating SCHEMA'), format(DATABASE_SCHEMA) + etc);
       await client.query(`
         CREATE SCHEMA "${DATABASE_SCHEMA}";
         GRANT USAGE, CREATE ON SCHEMA "${DATABASE_SCHEMA}" TO "${DATABASE_USER}";
@@ -135,9 +140,9 @@ async function initializeDatabase(): Promise<void> {
               GRANT USAGE, CREATE ON SCHEMA "${DATABASE_SCHEMA}" TO "${DATABASE_USER}";
             `);
             print(
-              colorString(COLOR.green, 'Access granted to'),
+              colorString(defaultColor, 'Access granted to'),
               format(DATABASE_USER),
-              colorString(COLOR.green, 'on schema'),
+              colorString(defaultColor, 'on schema'),
               format(DATABASE_SCHEMA),
             );
           }
@@ -159,7 +164,7 @@ async function initializeDatabase(): Promise<void> {
     });
     await client.connect();
 
-    print(colorString(COLOR.green, 'Database initialization complete'));
+    print(colorString(defaultColor, 'Database initialization complete'));
   } catch (err) {
     console.error(
       formatPrefix(COLOR.red),

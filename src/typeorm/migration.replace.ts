@@ -48,7 +48,7 @@ export function migrationReplace(path: string | null = null, silent = false): vo
 
   if (!silent) {
     console.log(
-      colorString(COLOR.green, 'File processed successfully:'),
+      colorString(COLOR.green, 'Migration file processed successfully:'),
       colorString(COLOR.blue, path),
     );
   }

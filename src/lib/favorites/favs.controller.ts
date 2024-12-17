@@ -17,9 +17,10 @@ import { LibService } from '../lib.service';
 import { Track } from 'src/lib/track/track.model';
 import { Artist } from 'src/lib/artist/artist.model';
 import { Album } from 'src/lib/album/album.model';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Favorites')
+@ApiBearerAuth()
 @Controller('favs')
 export class FavoritesController {
   constructor(readonly libService: LibService) {}

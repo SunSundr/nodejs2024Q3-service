@@ -1,10 +1,11 @@
 import { Get, Post, Put, Delete, Body, Request, HttpCode, HttpStatus } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { LibService } from './lib.service';
 import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
 import { UniversalDTO } from './lib.base.dto';
 
+@ApiBearerAuth()
 export abstract class LibBaseController {
   protected readonly owner: LibModels;
   protected readonly dtoClass: { new (): LibDtos };

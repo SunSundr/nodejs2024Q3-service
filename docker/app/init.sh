@@ -21,7 +21,7 @@ if [ "$ORM_TYPE" = "typeorm" ]; then
     node dist/db/init.js
     exit_on_error
     if [ ! -f "$FLAG_FILE" ]; then
-        echo "Generate initial migrations..."
+        echo "Generating initial migration..."
         npx typeorm-ts-node-commonjs migration:generate src/typeorm/migrations/InitialMigration -d dist/typeorm/data-source.js --pretty
         exit_on_error
 
@@ -31,7 +31,7 @@ if [ "$ORM_TYPE" = "typeorm" ]; then
             node -e "require(\"./dist/typeorm/migration.replace.js\").migrationReplace(\"$LAST_FILE\")"
             exit_on_error
 
-            echo "Compiling migrations: $LAST_FILE"
+            echo "Compiling the migration file: $LAST_FILE"
             npx tsc "$LAST_FILE" --outDir dist/typeorm/migrations --target es2017 --module commonjs --declaration --declarationMap --strict
             exit_on_error
 

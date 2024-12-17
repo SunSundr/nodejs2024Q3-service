@@ -19,13 +19,21 @@ import { CreateUserDto, UpdateUserDto, OutputUserDTO } from './user.dto';
 import { UserByIdInterceptor } from './user-by-id.interceptor';
 import { UUID } from 'crypto';
 import { User } from './user.model';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 export interface RequestWithUser extends Request {
   user: User;
 }
 
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

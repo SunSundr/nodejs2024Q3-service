@@ -24,8 +24,8 @@ services:
       LOG_FILE_MAX_SIZE_KB: ${LOG_FILE_MAX_SIZE_KB}
       LOG_LEVEL: ${LOG_LEVEL}
       LOG_VERBOSE_STACK: ${LOG_VERBOSE_STACK}
-      # ENV_LOADED: ${ENV_LOADED}
       ORM_TYPE: ${ORM_TYPE}
+      SWAGGER_USE_DEFAULT_SCHEMA: ${SWAGGER_USE_DEFAULT_SCHEMA}
     restart: on-failure
     develop:
       watch:

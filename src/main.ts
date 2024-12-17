@@ -9,6 +9,7 @@ import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
 import { OrmTypes, validateEnv } from './common/utils/validate.env';
 import { isRunningInContainer } from './common/utils/isRunningInContainer';
+import { migrationGenerate } from './typeorm/migration.generate';
 
 async function bootstrap() {
   if (!isRunningInContainer()) {
@@ -17,6 +18,9 @@ async function bootstrap() {
       await (
         await import('./db/init')
       ).default;
+      if (process.env.ORM_TYPE === OrmTypes.TYPEORM) {
+        migrationGenerate({ clearOldMigrations: true });
+      }
     }
   }
   const { AppModule } = await import('./app.module');
@@ -26,7 +30,7 @@ async function bootstrap() {
     await logger.init();
     app.useLogger(logger);
 
-    const port = app.get(ConfigService)?.get<number>('PORT');
+    const port = app.get(ConfigService)?.get('PORT');
     if (!port) throw new Error('PORT environment variable is not defined.');
 
     app.use((_req: Request, res: Response, next: NextFunction) => {

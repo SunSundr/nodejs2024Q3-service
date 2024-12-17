@@ -1,5 +1,6 @@
 import { AbstractLogger, LogLevel, LogMessage } from 'typeorm';
 import { LogService } from 'src/log/log.service';
+import { COLOR, colorString } from 'src/common/utils/color';
 
 export class TypeORMLogger extends AbstractLogger {
   constructor(private readonly logService: LogService) {
@@ -23,7 +24,7 @@ export class TypeORMLogger extends AbstractLogger {
       const messageObj = messages[i];
       const prefix = messageObj.prefix ? `${messageObj.prefix} ` : '';
       const logOptions = { msgRaw: prefix + messagesRaw[i] };
-      const message = prefix + messageObj.message;
+      const message = colorString(COLOR.green, prefix) + messageObj.message;
       switch (messageObj.type ?? level) {
         case 'log':
         case 'query':

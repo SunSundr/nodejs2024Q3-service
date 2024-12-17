@@ -1,7 +1,6 @@
 export const SWAGGER_USE_DEFAULT_SCHEMA = true;
 export const SWAGGER_PATH = 'api/doc/doc';
 export const APP_NAME = 'Home Library Service';
-export const DOCKER_OFF = 'DOCKER_OFF';
 
 export const JWT_DEFAULT = {
   tokenExpireTime: '1h',

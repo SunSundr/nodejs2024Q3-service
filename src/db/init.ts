@@ -1,5 +1,4 @@
 import { Client } from 'pg';
-import { DOCKER_OFF } from 'src/app.config';
 import { COLOR, colorString } from 'src/common/utils/color';
 
 async function initializeDatabase(): Promise<void> {
@@ -171,7 +170,7 @@ async function initializeDatabase(): Promise<void> {
       colorString(COLOR.red, 'Error during database initialization:'),
       err.message,
     );
-    process.exit(process.env[DOCKER_OFF] === 'true' ? 0 : 1);
+    process.exit(1);
   } finally {
     await client?.end();
   }

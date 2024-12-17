@@ -42,7 +42,8 @@ services:
       - ./logs:/app/logs
       - ./doc:/app/doc
       - /app/node_modules
-      - app-data:/app/data
+      # - app-data:/app/data
+      - app-data:/app/dist/typeorm/migrations
     depends_on:
       - postgres
     networks:
@@ -58,11 +59,11 @@ services:
     env_file: .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_USER: ${DATABASE_USER}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_SCHEMA: ${DATABASE_SCHEMA}
-      DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
-      POSTGRES_HOST_AUTH_METHOD: md5
+      # DATABASE_USER: ${DATABASE_USER}
+      # DATABASE_NAME: ${DATABASE_NAME}
+      # DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+      # DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
+      # POSTGRES_HOST_AUTH_METHOD: md5
     ports:
       - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:

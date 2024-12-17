@@ -8,11 +8,19 @@ export function loadEnv(filePath: string = '.env'): void {
     for (const line of lines) {
       const trimmedLine = line.trim();
 
-      if (!trimmedLine || trimmedLine.startsWith('#')) {
+      if (!trimmedLine) {
         continue;
       }
 
-      const [key, ...valueParts] = trimmedLine.split('=');
+      const commentIndex = trimmedLine.indexOf('#');
+      const sanitizedLine =
+        commentIndex !== -1 ? trimmedLine.slice(0, commentIndex).trim() : trimmedLine;
+
+      if (!sanitizedLine) {
+        continue;
+      }
+
+      const [key, ...valueParts] = sanitizedLine.split('=');
       const keyTrimmed = key.trim();
 
       const value = valueParts.join('=').trim();

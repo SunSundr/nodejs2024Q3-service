@@ -87,11 +87,12 @@ export class LibTypeOrmRepository implements ILibRepository {
   }
 
   async getFavs(userId: UUID | null): Promise<FavoritesJSON> {
-    return {
-      artists: await this.artistRepository.find({ where: { userId, favorite: true } }),
-      tracks: await this.trackRepository.find({ where: { userId, favorite: true } }),
-      albums: await this.albumRepository.find({ where: { userId, favorite: true } }),
-    };
+    const [artists, tracks, albums] = await Promise.all([
+      this.artistRepository.find({ where: { userId, favorite: true } }),
+      this.trackRepository.find({ where: { userId, favorite: true } }),
+      this.albumRepository.find({ where: { userId, favorite: true } }),
+    ]);
+    return { artists, tracks, albums };
   }
 
   async setFavs(id: UUID, type: LibNames, status: boolean, userId: UUID | null): Promise<void> {

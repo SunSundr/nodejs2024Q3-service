@@ -6,6 +6,8 @@ import { UserInMemoryRepository } from '../db/users.repo';
 import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
+import { UserPrismaRepository } from 'src/db/users.repo.prisma';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 // @Module({
 //   imports: [TypeOrmModule.forFeature([User])],
@@ -45,6 +47,9 @@ export class UsersModule {
     } else if (ormType === OrmTypes.TYPEORM) {
       imports.push(TypeOrmModule.forFeature([User]));
       providers.push({ provide: 'IUserRepository', useClass: UserTypeOrmRepository });
+    } else if (ormType === OrmTypes.PRISMA) {
+      imports.push(PrismaModule);
+      providers.push({ provide: 'IUserRepository', useClass: UserPrismaRepository });
     } else {
       throw new Error(`Unsupported ORM_TYPE: ${ormType}`);
     }

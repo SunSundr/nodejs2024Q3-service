@@ -1,7 +1,10 @@
 import { UUID } from 'crypto';
 import { serialize } from '../common/utils/serialize';
 import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Prisma } from '@prisma/client';
 import { User } from 'src/users/user.model';
+import { toAppEntity, toPrismaEntity } from 'src/prisma/prisma.converter';
+import { LibTypes } from 'src/db/lib.repo.interface';
 
 export abstract class BaseLibClass {
   @PrimaryColumn('uuid')
@@ -26,5 +29,9 @@ export abstract class BaseLibClass {
 
   toJSON(): { [key: string]: unknown } {
     return serialize(this, ['user', 'userId', 'favorite']);
+  }
+
+  toPrismaEntity(): Prisma.artistDelegate | Prisma.trackDelegate | Prisma.albumDelegate {
+    return toPrismaEntity(this);
   }
 }

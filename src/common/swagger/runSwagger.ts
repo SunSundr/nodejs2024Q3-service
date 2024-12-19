@@ -7,7 +7,6 @@ import { resolve } from 'path';
 import { cwd } from 'process';
 import { parse } from 'yaml';
 
-
 export function runSwagger(app: INestApplication, configService: ConfigObject): void {
   let document: OpenAPIObject;
   if (configService.get('SWAGGER_USE_STATIC_SCHEMA') === 'true') {

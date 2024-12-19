@@ -1,4 +1,4 @@
-import { DynamicModule, Module } from '@nestjs/common';
+import { DynamicModule, Module, Type } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -19,8 +19,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrmTypes, validateEnv } from './common/utils/validate.env';
 import { appConfigServiceProvider } from './app.config.service';
 import { LogService } from './log/log.service';
+import { PrismaModule } from './prisma/prisma.module';
 
-function initDbType(): DynamicModule[] {
+function initDbType(): DynamicModule[] | Type[] {
   switch (process.env.ORM_TYPE) {
     case OrmTypes.TYPEORM:
       return [
@@ -37,7 +38,7 @@ function initDbType(): DynamicModule[] {
         }),
       ];
     case OrmTypes.PRISMA:
-      return [];
+      return [PrismaModule];
     default:
       return [];
   }

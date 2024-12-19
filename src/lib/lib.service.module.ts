@@ -9,6 +9,8 @@ import { User } from 'src/users/user.model';
 import { LibTypeOrmRepository } from 'src/db/lib.repo.typeORM';
 import { LibModels } from 'src/db/lib.repo.interface';
 import { OrmTypes } from 'src/common/utils/validate.env';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { LibPrismaRepository } from 'src/db/lib.repo.prisma';
 
 // @Module({
 //   imports: [TypeOrmModule.forFeature([User, Artist, Track, Album])],
@@ -41,6 +43,9 @@ export class LibServiceModule {
       const typeormRepo = options.typeormRepo ?? [];
       imports.push(TypeOrmModule.forFeature([User, ...typeormRepo]));
       providers.push({ provide: 'ILibRepository', useClass: LibTypeOrmRepository });
+    } else if (ormType === OrmTypes.PRISMA) {
+      imports.push(PrismaModule);
+      providers.push({ provide: 'ILibRepository', useClass: LibPrismaRepository });
     } else {
       throw new Error(`Unsupported ORM_TYPE: ${ormType}`);
     }

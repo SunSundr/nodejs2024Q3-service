@@ -1,9 +1,11 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { album as PrismaAlbum } from '@prisma/client';
+import { UUID } from 'crypto';
 import { BaseLibClass } from '../lib.base.model';
 import { AlbumDto } from './album.dto';
 import { Artist } from '../artist/artist.model';
 import { serialize } from 'src/common/utils/serialize';
-import { UUID } from 'crypto';
+import { toAppEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class Album extends BaseLibClass {
@@ -35,6 +37,10 @@ export class Album extends BaseLibClass {
 
   static createFromDto(createDto: AlbumDto, userId: UUID | null = null): Album {
     return new Album(userId, createDto.name, createDto.year, createDto.artistId);
+  }
+
+  static createFromPrisma(prismaAlbum: PrismaAlbum): Album {
+    return toAppEntity(prismaAlbum, this.prototype);
   }
 
   updateFromDto(updateDto: AlbumDto): void {

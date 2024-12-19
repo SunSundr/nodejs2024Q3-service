@@ -1,15 +1,27 @@
-import { Entity, PrimaryColumn, Column, VersionColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  VersionColumn,
+  BeforeInsert,
+  BeforeUpdate,
+  Index,
+} from 'typeorm';
+import { user as PrismaUser } from '@prisma/client';
 import { UUID } from 'crypto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { serialize } from '../common/utils/serialize';
 import { checkPassword, getHash } from 'src/common/utils/hash';
+import { toAppEntity, toPrismaEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class User {
   @PrimaryColumn('uuid')
   readonly id: UUID;
 
-  @Column({ unique: true })
+  // @Column({ unique: true })
+  @Column()
+  @Index({ unique: true })
   login: string;
 
   @Column('varchar', { length: 255, select: false })
@@ -50,6 +62,15 @@ export class User {
     return new User(createDto.login, createDto.password);
   }
 
+  static createFromPrisma(prismaUser: PrismaUser): User {
+    const convert = {
+      ...prismaUser,
+      createdAt: Number(prismaUser.createdAt),
+      updatedAt: Number(prismaUser.updatedAt),
+    };
+    return toAppEntity(convert, this.prototype);
+  }
+
   updateFromDto(updateDto: UpdateUserDto): void {
     if (updateDto.login) this.login = updateDto.login;
     const newPasswordHash = getHash(updateDto.newPassword);
@@ -83,5 +104,9 @@ export class User {
 
   toJSON(): { [key: string]: unknown } {
     return serialize(this, ['password']);
+  }
+
+  toPrismaEntity(): PrismaUser {
+    return toPrismaEntity<PrismaUser>(this);
   }
 }

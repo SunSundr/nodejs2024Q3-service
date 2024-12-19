@@ -1,6 +1,7 @@
 import { DataSource } from 'typeorm';
 import { isRunningInContainer } from 'src/common/utils/isRunningInContainer';
 import { loadEnv } from 'src/common/utils/load.env';
+import { AppNamingStrategy } from './naming-strategy';
 
 if (!isRunningInContainer()) loadEnv();
 
@@ -13,5 +14,6 @@ export default new DataSource({
   database: process.env.DATABASE_NAME,
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
+  namingStrategy: new AppNamingStrategy(),
   schema: process.env.DATABASE_SCHEMA,
 });

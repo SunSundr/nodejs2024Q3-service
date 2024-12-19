@@ -96,7 +96,7 @@ export function migrationGenerate(
 
       if (options.clearOldMigrations)
         rmSync('dist/typeorm/migrations', { recursive: true, force: true });
-      print(colorString(defaultColor, 'Compiling thr migration file...'));
+      print(colorString(defaultColor, 'Compiling the migration file...'));
       execSync(shellCommands.compile, { stdio: 'inherit' });
 
       print(

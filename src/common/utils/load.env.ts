@@ -20,10 +20,13 @@ export function loadEnv(filePath: string = '.env'): void {
         continue;
       }
 
-      const [key, ...valueParts] = sanitizedLine.split('=');
-      const keyTrimmed = key.trim();
+      const separatorIndex = sanitizedLine.indexOf('=');
+      if (separatorIndex === -1) {
+        continue;
+      }
 
-      const value = valueParts.join('=').trim();
+      const keyTrimmed = sanitizedLine.slice(0, separatorIndex).trim();
+      const value = sanitizedLine.slice(separatorIndex + 1).trim();
 
       if (!process.env[keyTrimmed]) {
         process.env[keyTrimmed] = value.replace(/^['"]|['"]$/g, '');

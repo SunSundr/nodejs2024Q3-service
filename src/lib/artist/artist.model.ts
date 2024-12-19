@@ -1,7 +1,9 @@
 import { Entity, Column } from 'typeorm';
+import { artist as PrismaArtist } from '@prisma/client';
+import { UUID } from 'crypto';
 import { BaseLibClass } from '../lib.base.model';
 import { ArtistDto } from './artist.dto';
-import { UUID } from 'crypto';
+import { toAppEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class Artist extends BaseLibClass {
@@ -19,6 +21,10 @@ export class Artist extends BaseLibClass {
 
   static createFromDto(createDto: ArtistDto, userId: UUID | null = null): Artist {
     return new Artist(userId, createDto.name, createDto.grammy);
+  }
+
+  static createFromPrisma(prismaArtist: PrismaArtist): Artist {
+    return toAppEntity(prismaArtist, this.prototype);
   }
 
   updateFromDto(updateDto: ArtistDto): void {

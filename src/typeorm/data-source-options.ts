@@ -2,6 +2,7 @@ import { DataSourceOptions } from 'typeorm';
 import { AppConfigService } from 'src/app.config.service';
 import { LogService } from 'src/log/log.service';
 import { TypeORMLogger } from './logger';
+import { AppNamingStrategy } from './naming-strategy';
 
 export const getDataSourceOptions = async (
   appConfigService: AppConfigService,
@@ -15,6 +16,7 @@ export const getDataSourceOptions = async (
   database: appConfigService.getString('DATABASE_NAME'),
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
+  namingStrategy: new AppNamingStrategy(),
   migrationsRun: true,
   schema: appConfigService.getString('DATABASE_SCHEMA'),
   dropSchema: appConfigService.getBoolean('TYPEORM_DROPSCHEMA', false),

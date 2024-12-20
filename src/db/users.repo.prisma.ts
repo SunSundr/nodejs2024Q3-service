@@ -1,12 +1,23 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
 import { IUserRepository } from './users.repo.interface';
 import { UpdateUserDto } from 'src/users/user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { USERS_REPOSITORY_TOKEN } from './tokens';
 
 @Injectable()
 export class UserPrismaRepository implements IUserRepository {
+  private static instance: UserPrismaRepository;
+  static provider(): Provider {
+    return {
+      provide: USERS_REPOSITORY_TOKEN,
+      inject: [PrismaService],
+      useFactory: (prisma: PrismaService) =>
+        this.instance || (this.instance = new UserPrismaRepository(prisma)),
+    };
+  }
+
   private readonly userWithPasswordselect = {
     id: true,
     login: true,

@@ -6,7 +6,6 @@ import { Album } from '../lib/album/album.model';
 import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Prisma } from '@prisma/client';
-
 import { track as PrismaTrack } from '@prisma/client';
 import { artist as PrismaArtist } from '@prisma/client';
 import { album as PrismaAlbum } from '@prisma/client';
@@ -15,42 +14,37 @@ type LibPrismaTypes = PrismaTrack | PrismaArtist | PrismaAlbum;
 
 @Injectable()
 export class LibPrismaRepository implements ILibRepository {
+  private readonly repositoryMap = {
+    artist: this.prisma.artist,
+    track: this.prisma.track,
+    album: this.prisma.album,
+  };
+
+  private readonly entityMap = {
+    artist: (entity: LibPrismaTypes) => Artist.createFromPrisma(entity as PrismaArtist),
+    track: (entity: LibPrismaTypes) => Track.createFromPrisma(entity as PrismaTrack),
+    album: (entity: LibPrismaTypes) => Album.createFromPrisma(entity as PrismaAlbum),
+  };
+
   constructor(private readonly prisma: PrismaService) {}
 
   private getRepository(
     type: LibNames,
   ): Prisma.artistDelegate | Prisma.trackDelegate | Prisma.albumDelegate | undefined {
-    switch (type) {
-      case 'artist':
-        return this.prisma.artist;
-
-      case 'track':
-        return this.prisma.track;
-
-      case 'album':
-        return this.prisma.album;
-
-      default:
-        return undefined;
-    }
+    return this.repositoryMap[type];
   }
 
   private getEntity(
     type: LibNames,
     entity: PrismaTrack | PrismaArtist | PrismaAlbum,
   ): LibTypes | undefined {
-    switch (type) {
-      case 'artist':
-        return Artist.createFromPrisma(entity as PrismaArtist);
+    const createEntityFunc = this.entityMap[type];
+    return createEntityFunc ? createEntityFunc(entity) : undefined;
+  }
 
-      case 'track':
-        return Track.createFromPrisma(entity as PrismaTrack);
-
-      case 'album':
-        return Album.createFromPrisma(entity as PrismaAlbum);
-
-      default:
-        return undefined;
+  private validateArgs(args: unknown[]): void {
+    if (!Array.isArray(args)) {
+      throw new Error('Arguments must be an array');
     }
   }
 
@@ -59,6 +53,7 @@ export class LibPrismaRepository implements ILibRepository {
     func: keyof Prisma.artistDelegate | keyof Prisma.trackDelegate | keyof Prisma.albumDelegate,
     args: unknown[],
   ): Promise<T> {
+    this.validateArgs(args);
     const repo = this.getRepository(type);
     if (!repo) throw new Error(`Repository for type "${type}" not found`);
     if (!(func in repo))
@@ -67,8 +62,6 @@ export class LibPrismaRepository implements ILibRepository {
     const method = repo[func] as (...args: unknown[]) => Promise<T>;
     return await method(...args);
   }
-
-  //---------------------------------
 
   async saveEntyty(obj: LibTypes, type: LibNames): Promise<LibTypes> {
     const result = await this.callRepository<LibPrismaTypes>(type, 'create', [
@@ -103,6 +96,21 @@ export class LibPrismaRepository implements ILibRepository {
   }
 
   async getFavs(userId: UUID | null): Promise<FavoritesJSON> {
+    // const entities = await Promise.all(
+    //   Object.entries(this.repositoryMap).map(async ([type, repo]) => {
+    //     const results = await (repo as { findMany: (a: unknown) => Promise<unknown[]> }).findMany({
+    //       where: { userId, favorite: true },
+    //     });
+    //     return results.map(this.entityMap[type]);
+    //   }),
+    // );
+
+    // return {
+    //   artists: entities[0] as Artist[],
+    //   tracks: entities[1] as Track[],
+    //   albums: entities[2] as Album[],
+    // };
+
     const [artists, tracks, albums] = await Promise.all([
       this.prisma.artist.findMany({ where: { userId, favorite: true } }),
       this.prisma.track.findMany({ where: { userId, favorite: true } }),

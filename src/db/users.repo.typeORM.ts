@@ -1,15 +1,29 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
+// import { InjectRepository } from '@nestjs/typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
 import { IUserRepository } from './users.repo.interface';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UpdateUserDto } from 'src/users/user.dto';
+import { USERS_REPOSITORY_TOKEN } from './tokens';
 
 @Injectable()
 export class UserTypeOrmRepository extends Repository<User> implements IUserRepository {
-  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
+  private static instance: UserTypeOrmRepository;
+  static provider(): Provider {
+    return {
+      provide: USERS_REPOSITORY_TOKEN,
+      inject: [DataSource],
+      useFactory: (dataSource: DataSource) =>
+        this.instance ||
+        (this.instance = new UserTypeOrmRepository(dataSource.getRepository(User))),
+    };
+  }
+
+  //constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
+  constructor(private readonly userRepository: Repository<User>) {
     super(User, userRepository.manager);
+    console.log('Init UserTypeOrmRepository (TypeORM)');
   }
 
   async saveEntyty(user: User): Promise<User> {
@@ -44,7 +58,6 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
   }
 
   async getByLogin(login: string): Promise<User | null> {
-    // return this.userRepository.findOne({ where: { login } });
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')

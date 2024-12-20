@@ -1,11 +1,20 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
 import { IUserRepository } from './users.repo.interface';
 import { UpdateUserDto } from 'src/users/user.dto';
+import { USERS_REPOSITORY_TOKEN } from './tokens';
 
 @Injectable()
 export class UserInMemoryRepository implements IUserRepository {
+  private static instance: UserInMemoryRepository;
+  static provider(): Provider {
+    return {
+      provide: USERS_REPOSITORY_TOKEN,
+      useFactory: () => this.instance || (this.instance = new UserInMemoryRepository()),
+    };
+  }
+
   private readonly users: Map<UUID, User> = new Map();
 
   async saveEntyty(user: User): Promise<User> {

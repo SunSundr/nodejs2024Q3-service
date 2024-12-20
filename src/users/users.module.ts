@@ -1,13 +1,15 @@
 import { Module, DynamicModule, ModuleMetadata } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { User } from '../users/user.model';
+// import { User } from '../users/user.model';
 import { UserInMemoryRepository } from '../db/users.repo';
 import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
-import { TypeOrmModule } from '@nestjs/typeorm';
+// import { TypeOrmModule } from '@nestjs/typeorm';
+// import { DataSource, Repository } from 'typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
 import { UserPrismaRepository } from 'src/db/users.repo.prisma';
 import { PrismaModule } from 'src/prisma/prisma.module';
+// import { PrismaService } from 'src/prisma/prisma.service';
 
 // @Module({
 //   imports: [TypeOrmModule.forFeature([User])],
@@ -39,17 +41,37 @@ export class UsersModule {
     const ormType = process.env.ORM_TYPE;
     if (ormType === OrmTypes.MEMORY) {
       // providers.push({ provide: 'IUserRepository', useClass: UserInMemoryRepository });
-      let iUserRepo: UserInMemoryRepository;
-      providers.push({
-        provide: 'IUserRepository',
-        useFactory: () => iUserRepo || (iUserRepo = new UserInMemoryRepository()),
-      });
+      providers.push(UserInMemoryRepository.provider());
+
+      // let iUserRepo: UserInMemoryRepository;
+      // providers.push({
+      //   provide: 'IUserRepository',
+      //   useFactory: () => iUserRepo || (iUserRepo = new UserInMemoryRepository()),
+      // });
     } else if (ormType === OrmTypes.TYPEORM) {
-      imports.push(TypeOrmModule.forFeature([User]));
-      providers.push({ provide: 'IUserRepository', useClass: UserTypeOrmRepository });
+      // imports.push(TypeOrmModule.forFeature([User]));
+      // providers.push({ provide: 'IUserRepository', useClass: UserTypeOrmRepository });
+
+      providers.push(UserTypeOrmRepository.provider());
+
+      // let iUserRepo: UserTypeOrmRepository;
+      // providers.push({
+      //   provide: 'IUserRepository',
+      //   inject: [DataSource],
+      //   useFactory: (dataSource: DataSource) =>
+      //     iUserRepo || (iUserRepo = new UserTypeOrmRepository(dataSource.getRepository(User))),
+      // });
     } else if (ormType === OrmTypes.PRISMA) {
       imports.push(PrismaModule);
-      providers.push({ provide: 'IUserRepository', useClass: UserPrismaRepository });
+      providers.push(UserPrismaRepository.provider());
+      // providers.push({ provide: 'IUserRepository', useClass: UserPrismaRepository });
+      // let iUserRepo: UserPrismaRepository;
+      // providers.push({
+      //   provide: 'IUserRepository',
+      //   inject: [PrismaService],
+      //   useFactory: (prisma: PrismaService) =>
+      //     iUserRepo || (iUserRepo = new UserPrismaRepository(prisma)),
+      // });
     } else {
       throw new Error(`Unsupported ORM_TYPE: ${ormType}`);
     }

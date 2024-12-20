@@ -3,8 +3,7 @@ import { serialize } from '../common/utils/serialize';
 import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { Prisma } from '@prisma/client';
 import { User } from 'src/users/user.model';
-import { toAppEntity, toPrismaEntity } from 'src/prisma/prisma.converter';
-import { LibTypes } from 'src/db/lib.repo.interface';
+import { toPrismaEntity } from 'src/prisma/prisma.converter';
 
 export abstract class BaseLibClass {
   @PrimaryColumn('uuid')

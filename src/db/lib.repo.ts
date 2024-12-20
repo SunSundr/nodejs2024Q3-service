@@ -1,13 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Track } from '../lib/track/track.model';
 import { Artist } from '../lib/artist/artist.model';
 import { Album } from '../lib/album/album.model';
 import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
 import { Favorites } from './lib.favs.model';
+import { LIB_REPOSITORY_TOKEN } from './tokens';
 
 @Injectable()
 export class LibInMemoryRepository implements ILibRepository {
+  private static instance: LibInMemoryRepository;
+  static provider(): Provider {
+    return {
+      provide: LIB_REPOSITORY_TOKEN,
+      useFactory: () => this.instance || (this.instance = new LibInMemoryRepository()),
+    };
+  }
+
   private readonly artists = new Map<UUID, Artist>();
   private readonly tracks = new Map<UUID, Track>();
   private readonly albums = new Map<UUID, Album>();

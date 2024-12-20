@@ -20,6 +20,8 @@ import { OrmTypes, validateEnv } from './common/utils/validate.env';
 import { appConfigServiceProvider } from './app.config.service';
 import { LogService } from './log/log.service';
 // import { PrismaModule } from './prisma/prisma.module';
+// import { PrismaService } from './prisma/prisma.service';
+// import { PrismaModule } from './prisma/prisma.module';
 
 function initDbType(): DynamicModule[] | Type[] {
   switch (process.env.ORM_TYPE) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Track } from '../lib/track/track.model';
 import { Artist } from '../lib/artist/artist.model';
@@ -9,11 +9,22 @@ import { Prisma } from '@prisma/client';
 import { track as PrismaTrack } from '@prisma/client';
 import { artist as PrismaArtist } from '@prisma/client';
 import { album as PrismaAlbum } from '@prisma/client';
+import { LIB_REPOSITORY_TOKEN } from './tokens';
 
 type LibPrismaTypes = PrismaTrack | PrismaArtist | PrismaAlbum;
 
 @Injectable()
 export class LibPrismaRepository implements ILibRepository {
+  private static instance: LibPrismaRepository;
+  static provider(): Provider {
+    return {
+      provide: LIB_REPOSITORY_TOKEN,
+      inject: [PrismaService],
+      useFactory: (prisma: PrismaService) =>
+        this.instance || (this.instance = new LibPrismaRepository(prisma)),
+    };
+  }
+
   private readonly repositoryMap = {
     artist: this.prisma.artist,
     track: this.prisma.track,

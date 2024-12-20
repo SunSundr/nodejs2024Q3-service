@@ -1,5 +1,4 @@
 import { Injectable, Provider } from '@nestjs/common';
-// import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
@@ -20,7 +19,6 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     };
   }
 
-  //constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
   constructor(private readonly userRepository: Repository<User>) {
     super(User, userRepository.manager);
   }

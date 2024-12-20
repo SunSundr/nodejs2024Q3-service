@@ -6,8 +6,6 @@ import { Album } from '../lib/album/album.model';
 import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
 import { Repository, DataSource } from 'typeorm';
 import { LIB_REPOSITORY_TOKEN } from './tokens';
-//import { Injectable, Provider, Optional } from '@nestjs/common';
-//import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class LibTypeOrmRepository implements ILibRepository {
@@ -25,12 +23,6 @@ export class LibTypeOrmRepository implements ILibRepository {
         )),
     };
   }
-
-  // constructor(
-  //   @Optional() @InjectRepository(Artist) private readonly artistRepository?: Repository<Artist>,
-  //   @Optional() @InjectRepository(Track) private readonly trackRepository?: Repository<Track>,
-  //   @Optional() @InjectRepository(Album) private readonly albumRepository?: Repository<Album>,
-  // ) {}
 
   constructor(
     private readonly artistRepository: Repository<Artist>,

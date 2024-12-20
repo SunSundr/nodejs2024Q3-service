@@ -21,7 +21,7 @@ export const getDataSourceOptions = async (
   schema: appConfigService.getString('DATABASE_SCHEMA'),
   dropSchema: appConfigService.getBoolean('TYPEORM_DROPSCHEMA', false),
   synchronize: appConfigService.getBoolean('TYPEORM_SYNCHRONIZE', false),
-  ...(appConfigService.getBoolean('TYPEORM_LOGGING', false)
+  ...(appConfigService.getBoolean('ORM_LOGGING', false)
     ? { logger: new TypeORMLogger(logService) }
     : { logging: false }),
 });

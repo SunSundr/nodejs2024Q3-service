@@ -234,7 +234,7 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
       await fs.unlink(join(LOG_DIR, file.name));
       this.logFolderSize -= file.size;
       this.removeFileFromCache(file.name);
-      console.log(`Deleted old log: ${file.name}`);
+      console.log(`Deleted old log file: ${file.name}`);
     }
   }
 

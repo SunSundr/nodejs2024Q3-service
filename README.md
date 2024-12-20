@@ -42,9 +42,9 @@ App needs a .env file in the root directory of the project with following enviro
 - **`CONTAINER_NAME_APP`**: Docker Compose application container name.
 - **`CONTAINER_NAME_DB`**: Docker Compose database container name.
 - **`COMPOSE_PROJECT_NAME`**: Docker Compose project name.
-- **`TYPEORM_LOGGING`**: Enable TypeORM logging (true/false).
 - **`TYPEORM_DROPSCHEMA`**: Drop schema on startup (true/false - use with caution!).
 - **`TYPEORM_SYNCHRONIZE`**: Synchronize database schema on startup (true/false - use with caution!).
+- **`ORM_LOGGING`**: Enable TypeORM or Prisma logging (true/false).
 
 **Authentication & Authorization:**
 

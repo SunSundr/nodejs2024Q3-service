@@ -6,7 +6,7 @@ import { createWriteStream, WriteStream } from 'fs';
 import { finished } from 'stream/promises';
 import { processErrors } from './process.errors';
 import { LOG_DEFAULT } from 'src/app.config';
-import { APP_CONFIG_SERVICE, AppConfigService } from 'src/app.config.service';
+import { APP_CONFIG_SERVICE_TOKEN, AppConfigService } from 'src/app.config.service';
 
 export enum LogLevel {
   FATAL = 'fatal',
@@ -74,7 +74,9 @@ export class LogService extends ConsoleLogger implements OnApplicationShutdown {
   private isInitialized = false;
   private readonly bufferLogs: [fileData: LogData, message: string][] = [];
 
-  constructor(@Inject(APP_CONFIG_SERVICE) private readonly appConfigService: AppConfigService) {
+  constructor(
+    @Inject(APP_CONFIG_SERVICE_TOKEN) private readonly appConfigService: AppConfigService,
+  ) {
     super();
     this.initConfig();
   }

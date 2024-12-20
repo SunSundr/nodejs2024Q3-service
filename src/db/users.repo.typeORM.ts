@@ -23,7 +23,6 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
   //constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
   constructor(private readonly userRepository: Repository<User>) {
     super(User, userRepository.manager);
-    console.log('Init UserTypeOrmRepository (TypeORM)');
   }
 
   async saveEntyty(user: User): Promise<User> {

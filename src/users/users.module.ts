@@ -1,24 +1,11 @@
 import { Module, DynamicModule, ModuleMetadata } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-// import { User } from '../users/user.model';
 import { UserInMemoryRepository } from '../db/users.repo';
 import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
-// import { TypeOrmModule } from '@nestjs/typeorm';
-// import { DataSource, Repository } from 'typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
 import { UserPrismaRepository } from 'src/db/users.repo.prisma';
 import { PrismaModule } from 'src/prisma/prisma.module';
-// import { PrismaService } from 'src/prisma/prisma.service';
-
-// @Module({
-//   imports: [TypeOrmModule.forFeature([User])],
-//   controllers: [UsersController],
-//   // providers: [UsersService, { provide: 'IUserRepository', useClass: UserInMemoryRepository }],
-//   providers: [UsersService, { provide: 'IUserRepository', useClass: UserTypeOrmRepository }],
-//   exports: [UsersService],
-// })
-// export class UsersModule {}
 
 @Module({})
 export class UsersModule {

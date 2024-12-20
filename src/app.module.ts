@@ -1,4 +1,6 @@
-import { DynamicModule, Module, Type } from '@nestjs/common';
+import { Module, ModuleMetadata } from '@nestjs/common';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -8,53 +10,23 @@ import { AlbumModule } from './lib/album/album.module';
 import { FavoritesModule } from './lib/favorites/favs.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
-import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LogInterceptor } from './log/log.interceptor';
 import { HttpExceptionFilter } from './log/httpException.filter';
 import { LogModule } from './log/log.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getDataSourceOptions } from './typeorm/data-source-options';
-// import { dataSourceOptions } from './typeorm/data-source-options';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { OrmTypes, validateEnv } from './common/utils/validate.env';
-import { appConfigServiceProvider } from './app.config.service';
+import { AppConfigService } from './app.config.service';
 import { LogService } from './log/log.service';
-// import { PrismaModule } from './prisma/prisma.module';
-// import { PrismaService } from './prisma/prisma.service';
-// import { PrismaModule } from './prisma/prisma.module';
 
-function initDbType(): DynamicModule[] | Type[] {
-  switch (process.env.ORM_TYPE) {
-    case OrmTypes.TYPEORM:
-      return [
-        // TypeOrmModule.forRoot(dataSourceOptions),
-        TypeOrmModule.forRootAsync({
-          imports: [ConfigModule, LogModule],
-          inject: [ConfigService, LogService],
-          useFactory: async (configService: ConfigService, logService: LogService) => {
-            return await getDataSourceOptions(
-              appConfigServiceProvider['useFactory'](configService),
-              logService,
-            );
-          },
-        }),
-      ];
-    case OrmTypes.PRISMA:
-      return [];
-    default:
-      return [];
-  }
-}
-
-@Module({
-  imports: [
+function getAppImports(): ModuleMetadata['imports'] {
+  const imports = [
     ConfigModule.forRoot({
       isGlobal: true,
       cache: true,
       ignoreEnvFile: true,
       validate: validateEnv,
     }),
-    ...initDbType(),
     AuthModule,
     UsersModule.forRoot(),
     TrackModule,
@@ -62,7 +34,26 @@ function initDbType(): DynamicModule[] | Type[] {
     ArtistModule,
     FavoritesModule,
     LogModule,
-  ],
+  ];
+  if (process.env.ORM_TYPE === OrmTypes.TYPEORM) {
+    imports.push(
+      TypeOrmModule.forRootAsync({
+        imports: [ConfigModule, LogModule],
+        inject: [ConfigService, LogService],
+        useFactory: async (configService: ConfigService, logService: LogService) => {
+          return await getDataSourceOptions(
+            AppConfigService.getInstance(configService),
+            logService,
+          );
+        },
+      }),
+    );
+  }
+  return imports;
+}
+
+@Module({
+  imports: getAppImports(),
   controllers: [AppController],
   providers: [
     AppService,

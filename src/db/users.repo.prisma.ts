@@ -26,9 +26,7 @@ export class UserPrismaRepository implements IUserRepository {
     createdAt: true,
     updatedAt: true,
   };
-  constructor(private readonly prisma: PrismaService) {
-    console.log('>> Init UserPrismaRepository');
-  }
+  constructor(private readonly prisma: PrismaService) {}
 
   async saveEntyty(user: User): Promise<User> {
     await this.prisma.user.create({

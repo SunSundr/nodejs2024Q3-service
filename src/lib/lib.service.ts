@@ -20,6 +20,7 @@ import { ReqMethod } from 'src/common/utils/req-method.enum';
 import { LibNames } from '../db/lib.repo.interface';
 import { ILibRepository, FavoritesJSON } from '../db/lib.repo.interface';
 import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
+import { LIB_REPOSITORY_TOKEN } from 'src/db/tokens';
 
 export interface ValidateResult {
   entity: LibTypes | null;
@@ -30,7 +31,7 @@ export interface ValidateResult {
 
 @Injectable()
 export class LibService {
-  constructor(@Inject('ILibRepository') private readonly libRepository: ILibRepository) {}
+  constructor(@Inject(LIB_REPOSITORY_TOKEN) private readonly libRepository: ILibRepository) {}
 
   static callByOwner(
     owner: LibModels,

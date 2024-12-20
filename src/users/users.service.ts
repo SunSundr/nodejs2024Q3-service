@@ -10,10 +10,11 @@ import { UUID } from 'crypto';
 import { IUserRepository } from '../db/users.repo.interface';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { User } from './user.model';
+import { USERS_REPOSITORY_TOKEN } from 'src/db/tokens';
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
+  constructor(@Inject(USERS_REPOSITORY_TOKEN) private readonly userRepository: IUserRepository) {}
 
   async createUser(createDto: CreateUserDto): Promise<User> {
     const newUser = User.createFromDto(createDto);

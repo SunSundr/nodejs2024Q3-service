@@ -1,12 +1,13 @@
-import { Injectable, Provider, Optional } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
 import { UUID } from 'crypto';
 import { Track } from '../lib/track/track.model';
 import { Artist } from '../lib/artist/artist.model';
 import { Album } from '../lib/album/album.model';
 import { ILibRepository, LibNames, LibTypes, FavoritesJSON } from './lib.repo.interface';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { LIB_REPOSITORY_TOKEN } from './tokens';
+//import { Injectable, Provider, Optional } from '@nestjs/common';
+//import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class LibTypeOrmRepository implements ILibRepository {
@@ -25,13 +26,17 @@ export class LibTypeOrmRepository implements ILibRepository {
     };
   }
 
+  // constructor(
+  //   @Optional() @InjectRepository(Artist) private readonly artistRepository?: Repository<Artist>,
+  //   @Optional() @InjectRepository(Track) private readonly trackRepository?: Repository<Track>,
+  //   @Optional() @InjectRepository(Album) private readonly albumRepository?: Repository<Album>,
+  // ) {}
+
   constructor(
-    @Optional() @InjectRepository(Artist) private readonly artistRepository?: Repository<Artist>,
-    @Optional() @InjectRepository(Track) private readonly trackRepository?: Repository<Track>,
-    @Optional() @InjectRepository(Album) private readonly albumRepository?: Repository<Album>,
-  ) {
-    console.log('>> Init LibTypeOrmRepository');
-  }
+    private readonly artistRepository: Repository<Artist>,
+    private readonly trackRepository: Repository<Track>,
+    private readonly albumRepository: Repository<Album>,
+  ) {}
 
   private getRepository(type: LibNames): Repository<Artist | Track | Album> | undefined {
     switch (type) {

@@ -1,11 +1,23 @@
 import { Injectable, Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+export const APP_CONFIG_SERVICE_TOKEN = 'IAppConfigService';
+
 @Injectable()
 export class AppConfigService {
   constructor(readonly configService: ConfigService) {}
 
-  static instance: AppConfigService;
+  private static instance: AppConfigService;
+  static getInstance(configService: ConfigService) {
+    return this.instance || (this.instance = new AppConfigService(configService));
+  }
+  static provider(): Provider {
+    return {
+      provide: APP_CONFIG_SERVICE_TOKEN,
+      inject: [ConfigService],
+      useFactory: this.getInstance.bind(this),
+    };
+  }
 
   private returnDefault<T>(value: string, result: unknown, defaultValue: T): T {
     if (result === undefined && defaultValue) return defaultValue;
@@ -41,12 +53,3 @@ export class AppConfigService {
     return this.returnDefault<boolean>(value, result, defaultValue);
   }
 }
-
-export const APP_CONFIG_SERVICE = 'IAppConfigService';
-
-export const appConfigServiceProvider: Provider = {
-  inject: [ConfigService],
-  provide: APP_CONFIG_SERVICE,
-  useFactory: (configService: ConfigService) =>
-    AppConfigService.instance || (AppConfigService.instance = new AppConfigService(configService)),
-};

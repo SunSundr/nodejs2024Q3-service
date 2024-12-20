@@ -11,7 +11,6 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         },
       },
     });
-    console.log('>> Init PrismaService');
   }
 
   async onModuleInit() {

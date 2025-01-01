@@ -4,9 +4,6 @@ info:
   description: Home music library service
   version: 1.0.0
 
-servers:
-  - url: /api
-
 components:
   schemas:
     User:
@@ -117,10 +114,67 @@ security:
   - bearerAuth: []
 
 paths:
-  /login:
+  /:
+    get:
+      tags:
+        - API Information
+      security: []
+      summary: Get API Endpoints Information
+      description: Returns information about all available API endpoints.
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: array
+                  items:
+                    type: string
+              example:
+                ApiController:
+                  - "[GET] /api/doc"
+                  - "[GET] /api/doc-json"
+  /auth/signup:
     post:
       tags:
-        - Login
+        - Auth
+      security: []
+      summary: Signup
+      description: Signup a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              title: example
+              properties:
+                login:
+                  type: string
+                  # minLength: 3
+                  # maxLength: 255
+                  description: Username
+                password:
+                  type: string
+                  format: password
+                  # pattern: ^[a-zA-Z0-9]{3,30}
+                  description: Password
+              required:
+                - login
+                - password
+      responses:
+        204:
+          description: Successful signup
+        400:
+          description: Bad request
+        409:
+          description: Conflict. Login already exists
+  /auth/login:
+    post:
+      tags:
+        - Auth
       security: []
       summary: Login
       description: Logins a user and returns a JWT-token
@@ -142,54 +196,123 @@ paths:
                 - user
                 - login
       responses:
-        200:
-          description: Successful login.
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  token:
-                    type: string
-                description: JWT Token
+        201:
+          description: Successful signup
         403:
-          description: Incorrect login or password
-  /signup:
+          description: Forbidden - Login already exists
+  /auth/refresh:
     post:
       tags:
-        - Signup
-      security: [ ]
-      summary: Signup
-      description: Signup a user
+        - Auth
+      security: []
+      summary: Refresh JWT-token
+      description: Refresh the JWT-token using a valid refresh token.
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              title: example
+              title: Refresh Token Request
               properties:
-                login:
+                refreshToken:
                   type: string
-                  minLength: 3
-                  maxLength: 255
-                  description: Username
-                password:
-                  type: string
-                  format: password
-                  pattern: ^[a-zA-Z0-9]{3,30}
-                  description: Password
+                  description: A valid refresh token to obtain a new JWT.
               required:
-                - login
-                - password
+                - refreshToken
+            example:
+              refreshToken: "your-refresh-token-here"
       responses:
-        204:
-          description: Successful signup
+        200:
+          description: Token refreshed successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accessToken:
+                    type: string
+                    description: The new access token.
+                  refreshToken:
+                    type: string
+                    description: A new refresh token (if applicable).
+              example:
+                accessToken: "new-access-token-here"
+                refreshToken: "new-refresh-token-here"
         400:
-          description: Bad request
-        409:
-          description: Conflict. Login already exists
-  /users:
+          description: Bad Request - Invalid input data.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    description: HTTP status code.
+                  message:
+                    type: string
+                    description: Error message.
+                  error:
+                    type: string
+                    description: Error type.
+              example:
+                statusCode: 400
+                message: "Invalid request body."
+                error: "Bad Request"
+        401:
+          description: Unauthorized - Refresh token missing or invalid.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    description: HTTP status code.
+                  message:
+                    type: string
+                    description: Error message.
+                  error:
+                    type: string
+                    description: Error type.
+              example:
+                statusCode: 401
+                message: "No refresh token provided."
+                error: "Unauthorized"
+        403:
+          description: Forbidden - Authentication failed due to token issues.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  statusCode:
+                    type: integer
+                    description: HTTP status code.
+                  message:
+                    type: string
+                    description: Error message.
+                  error:
+                    type: string
+                    description: Error type.
+              example:
+                statusCode: 403
+                message: "Invalid or expired refresh token."
+                error: "Forbidden"
+        responses:
+          200:
+            description: Successful login.
+            content:
+              application/json:
+                schema:
+                  type: object
+                  properties:
+                    token:
+                      type: string
+                  description: JWT Token
+          403:
+            description: Incorrect login or password
+  /user:
     get:
       tags:
         - Users
@@ -239,7 +362,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /users/{userId}:
+  /user/{userId}:
     parameters:
       - name: userId
         in: path
@@ -334,10 +457,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: User not found
-  /tracks:
+  /track:
     get:
       tags:
-        - Track
+        - Tracks
       summary: Get tracks list
       description: Gets all library tracks list
       responses:
@@ -353,7 +476,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Track
+        - Tracks
       summary: Add new track
       description: Add new track information
       requestBody:
@@ -388,7 +511,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /tracks/{id}:
+  /track/{id}:
     parameters:
       - name: id
         in: path
@@ -398,7 +521,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Track
+        - Tracks
       summary: Get single track by id
       description: Gets single track by id
       responses:
@@ -416,7 +539,7 @@ paths:
           description: Track was not found.
     put:
       tags:
-        - Track
+        - Tracks
       summary: Update track information
       description: Update library track information by UUID
       requestBody:
@@ -480,7 +603,7 @@ paths:
           description: Track was not found.
     delete:
       tags:
-        - Track
+        - Tracks
       summary: Delete track
       description: Delete track from library
       responses:
@@ -492,10 +615,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Track was not found.
-  /albums:
+  /album:
     get:
       tags:
-        - Album
+        - Albums
       summary: Get albums list
       description: Gets all library albums list
       responses:
@@ -511,7 +634,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Album
+        - Albums
       summary: Add new album
       description: Add new album information
       requestBody:
@@ -544,7 +667,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /albums/{id}:
+  /album/{id}:
     parameters:
       - name: id
         in: path
@@ -554,7 +677,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Album
+        - Albums
       summary: Get single album by id
       description: Gets single album by id
       responses:
@@ -572,7 +695,7 @@ paths:
           description: Album was not found.
     put:
       tags:
-        - Album
+        - Albums
       summary: Update album information
       description: Update library album information by UUID
       requestBody:
@@ -609,7 +732,7 @@ paths:
           description: Album was not found.
     delete:
       tags:
-        - Album
+        - Albums
       summary: Delete album
       description: Delete album from library
       responses:
@@ -621,10 +744,10 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
         404:
           description: Album was not found.
-  /artists:
+  /artist:
     get:
       tags:
-        - Artist
+        - Artists
       summary: Get all artists
       description: Gets all artists
       responses:
@@ -640,7 +763,7 @@ paths:
           $ref: '#/components/responses/UnauthorizedError'
     post:
       tags:
-        - Artist
+        - Artists
       summary: Add new artist
       description: Add new artist
       requestBody:
@@ -668,7 +791,7 @@ paths:
           description: Bad request. body does not contain required fields
         401:
           $ref: '#/components/responses/UnauthorizedError'
-  /artists/{id}:
+  /artist/{id}:
     parameters:
       - name: id
         in: path
@@ -678,7 +801,7 @@ paths:
           format: uuid
     get:
       tags:
-        - Artist
+        - Artists
       summary: Get single artist by id
       description: Get single artist by id
       responses:
@@ -696,7 +819,7 @@ paths:
           description: Artist was not found.
     put:
       tags:
-        - Artist
+        - Artists
       summary: Update artist information
       description: Update artist information by UUID
       requestBody:
@@ -728,7 +851,7 @@ paths:
           description: Artist was not found.
     delete:
       tags:
-        - Artist
+        - Artists
       summary: Delete artist
       description: Delete artist from library
       responses:

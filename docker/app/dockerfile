@@ -1,0 +1,24 @@
+ARG ALPINE_VERSION=3.21
+
+FROM node:23.5-alpine${ALPINE_VERSION} AS builder
+WORKDIR /app
+
+COPY package*.json package.init.cjs tsconfig.json tsconfig.build.json .cleanmodules ./
+COPY src ./src
+
+RUN node package.init.cjs && npm ci && npm run build && npm ci --omit=dev \
+  && npx clean-modules --directory /app/node_modules --glob-file /app/.cleanmodules --yes --no-defaults
+
+FROM node:23.5-alpine${ALPINE_VERSION}
+WORKDIR /app
+
+COPY package*.json ./
+COPY doc ./doc
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY src/prisma/schema.prisma ./src/prisma/schema.prisma
+COPY docker/app/init.sh ./startup/
+
+RUN npm config set update-notifier false && chmod +x ./startup/init.sh
+
+CMD ["sh", "./startup/init.sh"]

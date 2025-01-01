@@ -1,16 +1,36 @@
-import { Module } from '@nestjs/common';
+import { Module, Provider } from '@nestjs/common';
 import { LibService } from './lib.service';
-// import { InMemoryLibRepository } from '../db/lib.repo';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Artist } from './artist/artist.model';
-import { Track } from './track/track.model';
-import { Album } from './album/album.model';
-import { LibTypeOrmRepository } from 'src/db/lib.repo.typeORM';
+import { LibInMemoryRepository } from '../db/lib.repo.memory';
+import { LibTypeOrmRepository } from 'src/db/lib.repo.typeorm';
+import { OrmTypes } from 'src/common/utils/validate.env';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { LibPrismaRepository } from 'src/db/lib.repo.prisma';
+
+function getLibProviders(ormType: OrmTypes): Provider[] {
+  const providers: Provider[] = [LibService];
+  switch (ormType) {
+    case OrmTypes.MEMORY:
+      providers.push(LibInMemoryRepository.provider());
+      break;
+
+    case OrmTypes.TYPEORM:
+      providers.push(LibTypeOrmRepository.provider());
+      break;
+
+    case OrmTypes.PRISMA:
+      providers.push(LibPrismaRepository.provider());
+      break;
+
+    default:
+      throw new Error(`Unsupported ORM type: ${ormType}`);
+  }
+
+  return providers;
+}
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Artist, Track, Album])],
-  providers: [LibService, { provide: 'ILibRepository', useClass: LibTypeOrmRepository }],
-  // providers: [LibService, { provide: 'ILibRepository', useClass: InMemoryLibRepository }],
+  imports: process.env.ORM_TYPE === OrmTypes.PRISMA ? [PrismaModule] : [],
+  providers: getLibProviders(process.env.ORM_TYPE as OrmTypes),
   exports: [LibService],
 })
 export class LibServiceModule {}

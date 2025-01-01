@@ -9,14 +9,16 @@ import {
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { IUserRepository } from '../../db/users.repo.interface';
+import { IUserRepository } from '../db/users.repo.interface';
 import { isUUID, validate } from 'class-validator';
-import { UpdateUserDto } from '../../users/user.dto';
+import { UpdateUserDto } from './user.dto';
 import { plainToClass } from 'class-transformer';
+import { ReqMethod } from '../common/utils/req-method.enum';
+import { USERS_REPOSITORY_TOKEN } from 'src/db/tokens';
 
 @Injectable()
 export class UserByIdInterceptor implements NestInterceptor {
-  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
+  constructor(@Inject(USERS_REPOSITORY_TOKEN) private readonly userRepository: IUserRepository) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();
@@ -27,7 +29,7 @@ export class UserByIdInterceptor implements NestInterceptor {
       throw new BadRequestException('Invalid UUID');
     }
 
-    if (request.method !== 'DELETE') {
+    if (request.method !== ReqMethod.DELETE) {
       const errors = await validate(updateUserDto);
       if (errors.length > 0) {
         throw new BadRequestException('Invalid request body');
@@ -35,7 +37,7 @@ export class UserByIdInterceptor implements NestInterceptor {
     }
 
     const user =
-      request.method === 'PUT'
+      request.method === ReqMethod.PUT
         ? await this.userRepository.getUserWithPasswordById(id)
         : await this.userRepository.getById(id);
 

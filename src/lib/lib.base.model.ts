@@ -1,40 +1,36 @@
 import { UUID } from 'crypto';
 import { serialize } from '../common/utils/serialize';
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Prisma } from '@prisma/client';
+import { User } from 'src/users/user.model';
+import { toPrismaEntity } from 'src/prisma/prisma.converter';
 
 export abstract class BaseLibClass {
   @PrimaryColumn('uuid')
   public readonly id: UUID;
 
   @Column({ nullable: true })
-  public userId: string | null;
+  public userId: UUID | null;
 
   @Column({ default: false })
   public favorite: boolean;
 
-  protected constructor(userId: string | null = null) {
+  // relations
+  @ManyToOne(() => User, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  public user: User | null;
+
+  protected constructor(userId: UUID | null = null) {
     this.id = crypto.randomUUID() as UUID;
     this.userId = userId;
     this.favorite = false;
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite']);
+    return serialize(this, ['user', 'userId', 'favorite']);
+  }
+
+  toPrismaEntity(): Prisma.artistDelegate | Prisma.trackDelegate | Prisma.albumDelegate {
+    return toPrismaEntity(this);
   }
 }
-
-// import { UUID } from 'crypto';
-// import { serialize } from '../common/utils/serialize';
-
-// export abstract class BaseLibClass {
-//   public readonly id: UUID;
-//   public favorite = false;
-
-//   constructor(public userId: string | null = null) {
-//     this.id = crypto.randomUUID() as UUID;
-//   }
-
-//   toJSON(): { [key: string]: unknown } {
-//     return serialize(this, ['userId', 'favorite']);
-//   }
-// }

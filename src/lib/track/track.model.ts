@@ -1,6 +1,12 @@
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { track as PrismaTrack } from '@prisma/client';
+import { UUID } from 'crypto';
 import { BaseLibClass } from '../lib.base.model';
 import { TrackDto } from './track.dto';
+import { Artist } from '../artist/artist.model';
+import { Album } from '../album/album.model';
+import { serialize } from 'src/common/utils/serialize';
+import { toAppEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class Track extends BaseLibClass {
@@ -8,19 +14,28 @@ export class Track extends BaseLibClass {
   public name: string;
 
   @Column({ nullable: true })
-  public artistId: string | null;
+  public artistId: UUID | null;
 
   @Column({ nullable: true })
-  public albumId: string | null;
+  public albumId: UUID | null;
 
   @Column({ default: 0 })
   public duration: number;
 
+  // relations
+  @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'artistId' })
+  public artist: Artist | null;
+
+  @ManyToOne(() => Album, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'albumId' })
+  public album: Album | null;
+
   private constructor(
-    userId: string | null,
+    userId: UUID | null,
     name: string,
-    artistId: string | null = null,
-    albumId: string | null = null,
+    artistId: UUID | null = null,
+    albumId: UUID | null = null,
     duration: number = 0,
   ) {
     super(userId);
@@ -30,7 +45,7 @@ export class Track extends BaseLibClass {
     this.duration = duration;
   }
 
-  static createFromDto(createDto: TrackDto, userId: string | null = null): Track {
+  static createFromDto(createDto: TrackDto, userId: UUID | null = null): Track {
     return new Track(
       userId,
       createDto.name,
@@ -40,6 +55,10 @@ export class Track extends BaseLibClass {
     );
   }
 
+  static createFromPrisma(prismaTrack: PrismaTrack): Track {
+    return toAppEntity(prismaTrack, this.prototype);
+  }
+
   updateFromDto(updateDto: TrackDto): void {
     Object.assign(this, {
       name: updateDto.name ?? this.name,
@@ -47,5 +66,9 @@ export class Track extends BaseLibClass {
       albumId: updateDto.albumId ?? this.albumId,
       duration: updateDto.duration ?? this.duration,
     });
+  }
+
+  toJSON(): { [key: string]: unknown } {
+    return serialize(this, ['user', 'userId', 'favorite', 'artist', 'album']);
   }
 }

@@ -1,1 +1,3 @@
 test
+dist
+[0-9]*-InitialMigration.ts

@@ -11,16 +11,15 @@ export class Favorites {
     private readonly albums: Map<UUID, Album>,
   ) {}
 
-  private async filter(map: Map<UUID, LibTypes>, _userId: UUID | null): Promise<LibTypes[]> {
-    // entity.favorite && entity.id === _userId
-    return Array.from(map.values()).filter((entity) => entity.favorite);
+  private async filter(map: Map<UUID, LibTypes>, userId: UUID | null): Promise<LibTypes[]> {
+    return Array.from(map.values()).filter((entity) => entity.favorite && entity.userId === userId);
   }
 
-  async getAll(_userId: UUID | null): Promise<FavoritesJSON> {
+  async getAll(userId: UUID | null): Promise<FavoritesJSON> {
     return {
-      artists: (await this.filter(this.artists, _userId)) as Artist[],
-      tracks: (await this.filter(this.tracks, _userId)) as Track[],
-      albums: (await this.filter(this.albums, _userId)) as Album[],
+      artists: (await this.filter(this.artists, userId)) as Artist[],
+      tracks: (await this.filter(this.tracks, userId)) as Track[],
+      albums: (await this.filter(this.albums, userId)) as Album[],
     };
   }
 

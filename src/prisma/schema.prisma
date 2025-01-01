@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["omitApi"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PRISMA_DATABASE_URL") // assigned dynamically
+}
+
+model user {
+  id        String   @id(map: "PK_Users_Id") @db.Uuid
+  login     String   @unique(map: "IX_Users_Login") @db.VarChar
+  password  String   @db.VarChar(255)
+  version   Int
+  createdAt BigInt
+  updatedAt BigInt
+  album     album[]
+  artist    artist[]
+  track     track[]
+}
+
+model album {
+  id       String  @id(map: "PK_Albums_Id") @db.Uuid
+  userId   String? @db.Uuid
+  favorite Boolean @default(false)
+  name     String  @db.VarChar
+  year     Int?
+  artistId String? @db.Uuid
+  artist   artist? @relation(fields: [artistId], references: [id], onUpdate: NoAction, map: "FK_Albums_Artists")
+  user     user?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Albums_Users")
+  track    track[]
+}
+
+model artist {
+  id       String  @id(map: "PK_Artists_Id") @db.Uuid
+  userId   String? @db.Uuid
+  favorite Boolean @default(false)
+  name     String  @db.VarChar
+  grammy   Boolean @default(false)
+  album    album[]
+  user     user?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Artists_Users")
+  track    track[]
+}
+
+model track {
+  id       String  @id(map: "PK_Tracks_Id") @db.Uuid
+  userId   String? @db.Uuid
+  favorite Boolean @default(false)
+  name     String  @db.VarChar
+  artistId String? @db.Uuid
+  albumId  String? @db.Uuid
+  duration Int     @default(0)
+  album    album?  @relation(fields: [albumId], references: [id], onUpdate: NoAction, map: "FK_Tracks_Albums")
+  artist   artist? @relation(fields: [artistId], references: [id], onUpdate: NoAction, map: "FK_Tracks_Artists")
+  user     user?   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Tracks_Users")
+}
+
+/// TypeORM reference
+model typeorm_migrations {
+  id        Int    @id(map: "PK__typeorm_migrations_Id") @default(dbgenerated("nextval('_typeorm_migrations_id_seq'::regclass)"))
+  timestamp BigInt
+  name      String @db.VarChar
+
+  @@map("_typeorm_migrations")
+}
+
+// model prisma_migrations {
+//   id                  String    @id(map: "_prisma_migrations_pkey") @db.VarChar(36)
+//   checksum            String    @db.VarChar(64)
+//   finished_at         DateTime? @db.Timestamptz(6)
+//   migration_name      String    @db.VarChar(255)
+//   logs                String?
+//   rolled_back_at      DateTime? @db.Timestamptz(6)
+//   started_at          DateTime  @default(now()) @db.Timestamptz(6)
+//   applied_steps_count Int       @default(0)
+// }

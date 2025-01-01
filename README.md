@@ -6,17 +6,18 @@ The project was completed as part of the [RS School](https://rs.school/) [NodeJS
 
 
 ## Key Features & Improvements:
-
+![image](https://github.com/user-attachments/assets/89a36611-407f-40ae-9dfb-94d5b695a2f6)
+![image](https://github.com/user-attachments/assets/fbba4453-6f30-4b34-bf3d-b03f6392e5c2)
 *  **Dual ORM Support with Dynamic Switching:** The application can seamlessly switch between two popular Object-Relational Mappers (ORMs) - Prisma and TypeORM - using a single PostgreSQL database. The desired ORM is configured via an environment variable (.env file). This allows for testing and comparisons without data loss as the database persists between ORM changes. Furthermore, the application can also be run in a database-less mode (in-memory database), which is useful for testing.
 *  **Dynamic Database Initialization:** The database connection is configured based on environment variables (user, password, schema). Changes to these variables will trigger an automatic database rebuild, guaranteeing the database always matches the specified settings.
 *  **Automated Migrations:** All initial database migrations are applied automatically upon application startup.
 *  **Flexible Database Deployment:** The application can be run either with a local PostgreSQL database (without Docker), offering easier development and testing, or inside a Docker container.
 *  **Unified & Advanced Logging System:** The application boasts a significantly improved logging system that consolidates logging from NestJS, Prisma, and TypeORM into a single, consistent output. All logs are written to files via streams for optimal speed.
 *  **Efficient Log Management:** Log files are automatically rotated and deleted, with a user-defined purge strategy, ensuring that disk space doesn’t grow indefinitely. You can configure the percentage of log files to delete when the log directory hits the maximum size, allowing you to balance between data retention and storage capacity.
-*  **Request & User Tracking:** Every request and response log now includes a unique request ID and the associated user ID, enabling precise tracking and debugging of user interactions.
+*  **Request & User Tracking:** Every request and response log includes a unique request ID and the associated user ID, enabling precise tracking and debugging of user interactions.
 *  **Flexible Swagger Documentation:** Swagger documentation can be generated using either a dynamic method (using decorators in the code) or a static approach (from a pre-defined schema file), giving you flexible documentation options.  
 *  **Dynamic Application Analysis:** The application exposes a dedicated endpoint ("/"), which provides a comprehensive report on all available application endpoints at runtime, which can be used for debugging and system audits.
-*  **Optimized Container Size:** The final Docker image is aggressively optimized for size, removing unused files and resulting in a container image size under 470 MB. This results from the use of a very lightweight Node: Node 23.5 -alpine base image.
+*  **Optimized Container Size:** The final Docker image is aggressively optimized for size, removing unused files and resulting in a container image size under 470 MB.
 *  **Styled Terminal Output:** Terminal outputs are enhanced with colors and styles, for an enhanced developer experience.
 *  **Streamlined Dependencies:** The project uses the latest versions of dependencies, without introducing unnecessary libraries.
 
@@ -243,7 +244,7 @@ For more information, visit: https://code.visualstudio.com/docs/editor/debugging
 
 ### Docker volumes
 
-Database files and logs are stored in `postgres-logs` volume. Logs could be find inside `logs` folder in that volume.
+Database files and logs are stored in volumes.
 
 ### Vulnerabilities scanning
 

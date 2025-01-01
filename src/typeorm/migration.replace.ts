@@ -38,7 +38,8 @@ export function migrationReplace(path: string | null = null, silent = false): vo
       new RegExp(`^(\\s*)name\\s*=\\s*'${className}'`, 'm'),
       (match, spaces) => `${match}\n${spaces}schema = ${envSchema}`,
     )
-    .replace(new RegExp(process.env.DATABASE_SCHEMA, 'g'), '${this.schema}');
+    .replace(new RegExp(process.env.DATABASE_SCHEMA, 'g'), '${this.schema}')
+    .replace(/CREATE TABLE/g, 'CREATE TABLE IF NOT EXISTS');
 
   try {
     writeFileSync(path, updatedMigration);

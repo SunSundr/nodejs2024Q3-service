@@ -1,12 +1,5 @@
 #!/bin/bash
 
-if [ "$ORM_TYPE" != "memory" ]; then
-    until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do
-        echo "PostgreSQL is not ready yet. Waiting..."
-        sleep 2
-    done
-fi
-
 exit_on_error() {
     local exit_code=$?
     if [ $exit_code -ne 0 ]; then
@@ -15,29 +8,58 @@ exit_on_error() {
     fi
 }
 
-FLAG_FILE="/app/dist/typeorm/migrations/.first_start_flag"
+print_banner() {
+    echo -e "╔═══════════════════════════╗\n║ HOME LIBRARY SERVICE 2024 ║\n╚═══════════════════════════╝"
+}
 
-if [ "$ORM_TYPE" = "typeorm" ]; then
+FLAG_FIRST_START="/app/startup/.initialized"
+
+if [ "$ORM_TYPE" != "memory" ]; then
+    until echo "SELECT 1" | nc "$DATABASE_HOST" "$DATABASE_PORT" > /dev/null 2>&1; do
+        echo "PostgreSQL is not ready yet. Waiting..."
+        sleep 2
+    done
+
+    print_banner
+
     node dist/db/init.js
     exit_on_error
-    if [ ! -f "$FLAG_FILE" ]; then
-        echo "Generating initial migration..."
-        npx typeorm-ts-node-commonjs migration:generate src/typeorm/migrations/InitialMigration -d dist/typeorm/data-source.js --pretty
+
+    first_start=false
+    if [ ! -f "$FLAG_FIRST_START" ]; then
+        first_start=true
+    fi
+
+    #------------------------------FIRST START-----------------------------------------------------
+    if $first_start; then
+        # https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+
+        echo -e "\n\033[4;35m Generating initial PRISMA migration... \x1b[0m\xEF\xBB\xBF"
+        npx prisma generate
+        exit_on_error
+        node -e "require(\"./dist/prisma/migration.generate.js\").migrationGenerate()"
         exit_on_error
 
-        LAST_FILE=$(ls -t src/typeorm/migrations/*.ts 2>/dev/null | head -n 1)
-        if [ -n "$LAST_FILE" ]; then
-            echo "Modifying the migration file to work with any current schema..."
-            node -e "require(\"./dist/typeorm/migration.replace.js\").migrationReplace(\"$LAST_FILE\")"
-            exit_on_error
 
-            echo "Compiling the migration file: $LAST_FILE"
-            npx tsc "$LAST_FILE" --outDir dist/typeorm/migrations --target es2017 --module commonjs --declaration --declarationMap --strict
-            exit_on_error
+        echo -e "\n\033[4;35m Generating initial TYPEORM migration... \x1b[0m\xEF\xBB\xBF"
+        node -e "require('./dist/typeorm/migration.generate.js').migrationGenerate()"
+        exit_on_error
 
-            touch "$FLAG_FILE"
-        fi
+        touch "$FLAG_FIRST_START"
     fi
+
+    #----------------------------------------------------------------------------------------------
+    if [ "$ORM_TYPE" = "prisma" ]; then
+        node -e "require(\"./dist/prisma/migration.generate.js\").migrationCheck($first_start)"
+        exit_on_error
+        node -e "require(\"./dist/typeorm/migration.check.js\").checkLatestMigration()" # Sync with TypeORM
+        exit_on_error
+    elif [ "$ORM_TYPE" = "typeorm" ]; then
+        node -e "require(\"./dist/prisma/migration.check.js\").checkLatestMigration()" # Sync with Prisma
+        exit_on_error
+    fi
+else
+    print_banner
 fi
 
 exec node dist/main.js

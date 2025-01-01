@@ -46,6 +46,15 @@ CREATE TABLE "track" (
     CONSTRAINT "PK_Tracks_Id" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "_typeorm_migrations" (
+    "id" SERIAL NOT NULL,
+    "timestamp" BIGINT NOT NULL,
+    "name" VARCHAR NOT NULL,
+
+    CONSTRAINT "PK__typeorm_migrations_Id" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "IX_Users_Login" ON "user"("login");
 
@@ -66,3 +75,4 @@ ALTER TABLE "track" ADD CONSTRAINT "FK_Tracks_Artists" FOREIGN KEY ("artistId") 
 
 -- AddForeignKey
 ALTER TABLE "track" ADD CONSTRAINT "FK_Tracks_Users" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE NO ACTION;
+

@@ -14,6 +14,7 @@ export default new DataSource({
   database: process.env.DATABASE_NAME,
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
+  migrationsTableName: '_typeorm_migrations',
   namingStrategy: new AppNamingStrategy(),
   schema: process.env.DATABASE_SCHEMA,
 });

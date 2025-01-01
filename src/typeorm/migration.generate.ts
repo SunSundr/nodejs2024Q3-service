@@ -21,7 +21,7 @@ export function migrationGenerate(
   const pid = process.pid;
   const defaultColor = COLOR.gray;
   const formatPrefix = (color = COLOR.green) =>
-    colorString(color, `[DATABASE MIGRATION] ${pid} - `) +
+    colorString(color, `[DB TYPEORM MIGRATION] ${pid} - `) +
     new Date().toLocaleTimeString() +
     colorString(COLOR.green, ' |');
   const print = (...msg: string[]) => console.log(formatPrefix(), ...msg);
@@ -81,6 +81,9 @@ export function migrationGenerate(
       print(colorString(defaultColor, 'No changes in database schema were found'));
     }
 
+    if (options.clearOldMigrations)
+      rmSync('dist/typeorm/migrations', { recursive: true, force: true });
+
     if (existsSync(options.path)) {
       print(
         colorString(
@@ -94,8 +97,6 @@ export function migrationGenerate(
         colorString(COLOR.blue, options.path),
       );
 
-      if (options.clearOldMigrations)
-        rmSync('dist/typeorm/migrations', { recursive: true, force: true });
       print(colorString(defaultColor, 'Compiling the migration file...'));
       execSync(shellCommands.compile, { stdio: 'inherit' });
 

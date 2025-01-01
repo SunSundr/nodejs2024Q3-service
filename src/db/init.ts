@@ -5,7 +5,7 @@ async function initializeDatabase(): Promise<void> {
   const defaultColor = COLOR.gray;
   const pid = process.pid;
   const formatPrefix = (color = COLOR.green) =>
-    colorString(color, `[DATABASE INIT] ${pid} - `) +
+    colorString(color, `[DB INIT] ${pid} - `) +
     new Date().toLocaleTimeString() +
     colorString(COLOR.green, ' |');
   const format = (msg: string, color = COLOR.white) => colorString(color, `"${msg}"`);
@@ -145,6 +145,24 @@ async function initializeDatabase(): Promise<void> {
               format(DATABASE_SCHEMA),
             );
           }
+
+          await client.query(`
+            DO $$ BEGIN
+              EXECUTE format(
+                'GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA %I TO %I;',
+                '${DATABASE_SCHEMA}', '${DATABASE_USER}'
+              );
+              EXECUTE format(
+                'GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA %I TO %I;',
+                '${DATABASE_SCHEMA}', '${DATABASE_USER}'
+              );
+            END $$;
+          `);
+
+          await client.query(`
+            ALTER DEFAULT PRIVILEGES IN SCHEMA "${DATABASE_SCHEMA}" GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO "${DATABASE_USER}";
+            ALTER DEFAULT PRIVILEGES IN SCHEMA "${DATABASE_SCHEMA}" GRANT USAGE, SELECT ON SEQUENCES TO "${DATABASE_USER}";
+          `);
         }
       } else {
         console.error(`Unable to determine schema owner for "${DATABASE_SCHEMA}".`);

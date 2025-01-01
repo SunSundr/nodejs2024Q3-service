@@ -1,7 +1,7 @@
 import { Module, Provider } from '@nestjs/common';
 import { LibService } from './lib.service';
-import { LibInMemoryRepository } from '../db/lib.repo';
-import { LibTypeOrmRepository } from 'src/db/lib.repo.typeORM';
+import { LibInMemoryRepository } from '../db/lib.repo.memory';
+import { LibTypeOrmRepository } from 'src/db/lib.repo.typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { LibPrismaRepository } from 'src/db/lib.repo.prisma';

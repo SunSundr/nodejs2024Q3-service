@@ -3,8 +3,8 @@ const fs = require('fs');
 const packageJsonPath = './package.json';
 const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
-// const devDependenciesToRemove = [/^@types\//, /eslint/, /prettier/];
-const devDependenciesToRemove = [/eslint/, /prettier/];
+const devDependenciesToRemove = [/^@types\//, /eslint/, /prettier/];
+// const devDependenciesToRemove = [/eslint/, /prettier/];
 
 if (packageJson.devDependencies) {
   Object.keys(packageJson.devDependencies).forEach((key) => {

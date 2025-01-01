@@ -4,6 +4,22 @@ This repository contains solution for a REST Home Library Service.
 
 The project was completed as part of the [RS School](https://rs.school/) [NodeJS 2024 Q3 course (Home Library Service)](https://github.com/AlreadyBored/nodejs-assignments/blob/main/assignments/logging-error-authentication-authorization/assignment.md).
 
+
+## Key Features & Improvements:
+
+*  **Dual ORM Support with Dynamic Switching:** The application can seamlessly switch between two popular Object-Relational Mappers (ORMs) - Prisma and TypeORM - using a single PostgreSQL database. The desired ORM is configured via an environment variable (.env file). This allows for testing and comparisons without data loss as the database persists between ORM changes. Furthermore, the application can also be run in a database-less mode (in-memory database), which is useful for testing.
+*  **Dynamic Database Initialization:** The database connection is configured based on environment variables (user, password, schema). Changes to these variables will trigger an automatic database rebuild, guaranteeing the database always matches the specified settings.
+*  **Automated Migrations:** All initial database migrations are applied automatically upon application startup.
+*  **Flexible Database Deployment:** The application can be run either with a local PostgreSQL database (without Docker), offering easier development and testing, or inside a Docker container.
+*  **Unified & Advanced Logging System:** The application boasts a significantly improved logging system that consolidates logging from NestJS, Prisma, and TypeORM into a single, consistent output. All logs are written to files via streams for optimal speed.
+*  **Efficient Log Management:** Log files are automatically rotated and deleted, with a user-defined purge strategy, ensuring that disk space doesn’t grow indefinitely. You can configure the percentage of log files to delete when the log directory hits the maximum size, allowing you to balance between data retention and storage capacity.
+*  **Request & User Tracking:** Every request and response log now includes a unique request ID and the associated user ID, enabling precise tracking and debugging of user interactions.
+*  **Flexible Swagger Documentation:** Swagger documentation can be generated using either a dynamic method (using decorators in the code) or a static approach (from a pre-defined schema file), giving you flexible documentation options.  
+*  **Dynamic Application Analysis:** The application exposes a dedicated endpoint ("/"), which provides a comprehensive report on all available application endpoints at runtime, which can be used for debugging and system audits.
+*  **Optimized Container Size:** The final Docker image is aggressively optimized for size, removing unused files and resulting in a container image size under 470 MB. This results from the use of a very lightweight Node: Node 23.5 -alpine base image.
+*  **Styled Terminal Output:** Terminal outputs are enhanced with colors and styles, for an enhanced developer experience.
+*  **Streamlined Dependencies:** The project uses the latest versions of dependencies, without introducing unnecessary libraries.
+
 ## Project Setup
 
 1. **Clone the repository:**
@@ -14,15 +30,11 @@ git clone https://github.com/SunSundr/nodejs2024Q3-service
 ```bash
 cd nodejs2024Q3-service
 ```
-3. **Checkout the `develop3` branch:**
-```bash
-git checkout develop3
-```
-4. **Define the `.env` file:**
+3. **Define the `.env` file:**
 ```bash
 cp .env.example .env
 ```
-5. **Install the dependencies:**
+4. **Install the dependencies:**
 ```bash
 npm ci
 ```
@@ -42,12 +54,11 @@ App needs a .env file in the root directory of the project with following enviro
 - **`CONTAINER_NAME_APP`**: Docker Compose application container name.
 - **`CONTAINER_NAME_DB`**: Docker Compose database container name.
 - **`COMPOSE_PROJECT_NAME`**: Docker Compose project name.
+- **`ORM_TYPE`**: ORM type used (prisma / typeorm / memory).
 - **`TYPEORM_DROPSCHEMA`**: Drop schema on startup (true/false - use with caution!).
 - **`TYPEORM_SYNCHRONIZE`**: Synchronize database schema on startup (true/false - use with caution!).
-- **`ORM_LOGGING`**: Enable TypeORM or Prisma logging (true/false).
 
 **Authentication & Authorization:**
-
 - **`CRYPT_SALT`**: Number of rounds for password hashing (adjust as needed for security). (Default: 10)
 - **`JWT_SECRET_KEY`**: Secret key for JSON Web Tokens (JWTs).
 - **`JWT_SECRET_REFRESH_KEY`**: Secret key for JWT refresh tokens.
@@ -55,7 +66,6 @@ App needs a .env file in the root directory of the project with following enviro
 - **`TOKEN_REFRESH_EXPIRE_TIME`**: Expiration time for refresh tokens (e.g., 24h, 7d). (Default: 24h)
 
 **Logging:**
-
 - **`LOG_FILE_MAX_SIZE_KB`**: Maximum size of log files in kilobytes. (Default: 512)
 - **`LOG_LEVEL`**: Logging level priority (0-5). Higher numbers have higher priority. Corresponds to NestJS log levels as follows:
     - `0`: 'fatal'
@@ -65,6 +75,7 @@ App needs a .env file in the root directory of the project with following enviro
     - `4`: 'debug'
     - `5`: 'verbose'
 - **`LOG_VERBOSE_STACK`**: Enable verbose stack traces in logs (true/false). (Default: false)
+- **`ORM_LOGGING`**: Enable TypeORM or Prisma logging (true/false).
 
 A `.env.example` file is provided as a template.  Copy this file to `.env` and populate it with your values.
 

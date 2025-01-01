@@ -16,6 +16,7 @@ export const getDataSourceOptions = async (
   database: appConfigService.getString('DATABASE_NAME'),
   entities: ['./dist/**/*.model.js'],
   migrations: ['./dist/typeorm/migrations/*.js'],
+  migrationsTableName: '_typeorm_migrations',
   namingStrategy: new AppNamingStrategy(),
   migrationsRun: true,
   schema: appConfigService.getString('DATABASE_SCHEMA'),

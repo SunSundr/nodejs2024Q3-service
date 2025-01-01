@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
 import { COLOR, colorString } from 'src/common/utils/color';
 import { LogOptions, LogService } from 'src/log/log.service';
+import { setDatasourceUrl } from './datasourceUrl';
 
 const prismaOptions = {
   omit: {
@@ -10,6 +11,7 @@ const prismaOptions = {
       password: true,
     },
   },
+  // datasourceUrl: '',
   log: [
     { emit: 'event', level: 'query' },
     { emit: 'event', level: 'info' },
@@ -34,8 +36,10 @@ export class PrismaService
     private readonly logService: LogService,
     configService: ConfigService,
   ) {
+    setDatasourceUrl();
     super({
       ...prismaOptions,
+      // datasourceUrl: datasourceUrl(),
       log: [...prismaOptions.log], // mutable log!
     });
     if (configService.get('ORM_LOGGING') === 'true') {
@@ -53,10 +57,10 @@ export class PrismaService
 
   private subscribeToPrismaEvents() {
     this.$on('query', (e) => {
-      this.logService.log(...this.formatMessage('QUERY', `${e.query} [${e.duration}ms]`));
+      this.logService.log(...this.formatMessage('query', `${e.query} [${e.duration}ms]`));
     });
     this.$on('info', (e) => {
-      this.logService.debug(...this.formatMessage('INFO', e.message));
+      this.logService.debug(...this.formatMessage('info', e.message));
     });
     this.$on('warn', (e) => this.logService.warn(e.message, loggerName));
     this.$on('error', (e) => this.logService.error(e.message, undefined, loggerName));

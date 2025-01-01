@@ -1,8 +1,8 @@
 import { Module, DynamicModule, ModuleMetadata } from '@nestjs/common';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { UserInMemoryRepository } from '../db/users.repo';
-import { UserTypeOrmRepository } from 'src/db/users.repo.typeORM';
+import { UserInMemoryRepository } from '../db/users.repo.memory';
+import { UserTypeOrmRepository } from 'src/db/users.repo.typeorm';
 import { OrmTypes } from 'src/common/utils/validate.env';
 import { UserPrismaRepository } from 'src/db/users.repo.prisma';
 import { PrismaModule } from 'src/prisma/prisma.module';

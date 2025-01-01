@@ -38,6 +38,11 @@ async function bootstrap() {
     await app.listen(port);
 
     console.log(
+      colorString(COLOR.green, '[Main]'),
+      'ORM TYPE:',
+      colorString(COLOR.blue, configService.get('ORM_TYPE').toUpperCase()),
+    );
+    console.log(
       '-'.repeat(80),
       `\n\uD83C\uDF10 ${APP_NAME} is running on: ${colorString(COLOR.cyan, await app.getUrl())}`,
     );

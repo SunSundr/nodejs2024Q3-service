@@ -1,9 +1,6 @@
 services:
   app:
-    #image: sunsundr/home-library-service-app:dev-latest
-    build:
-      context: .
-      dockerfile: ./docker/app/dockerfile
+    image: sunsundr/home-library-service-app:prod-final
     container_name: ${CONTAINER_NAME_APP}
     env_file: .env
     environment:
@@ -34,50 +31,41 @@ services:
           target: /app/src
           ignore:
             - node_modules/
-    # stop_signal: SIGINT
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./src:/app/src
-      - ./logs:/app/logs
-      - ./doc:/app/doc
-      - /app/node_modules
-      # - app-data:/app/data
-      - app-data:/app/dist/typeorm/migrations
+      - startup:/app/startup
+      - app-logs:/app/logs
+      - prisma-migrations:/app/src/prisma/migrations
+      - typeorm-migrations:/app/src/typeorm/migrations
+      - /app/dist/typeorm/migrations # Anonymous volume for compiled files
     depends_on:
       - postgres
     networks:
       - custom_bridge_network
 
   postgres:
-    # image: sunsundr/home-library-service-postgres:dev-latest
-    build:
-      context: ./docker/postgres
-      dockerfile: dockerfile
+    image: sunsundr/home-library-service-postgres:prod-final
     container_name: ${CONTAINER_NAME_DB}
     restart: on-failure
     env_file: .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      # DATABASE_USER: ${DATABASE_USER}
-      # DATABASE_NAME: ${DATABASE_NAME}
-      # DATABASE_SCHEMA: ${DATABASE_SCHEMA}
-      # DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
-      # POSTGRES_HOST_AUTH_METHOD: md5
     ports:
       - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:
-      #- ./src/typeorm/init.sh:/docker-entrypoint-initdb.d/init.sh
       - postgres-data:/var/lib/postgresql/data
       - postgres-logs:/var/log/postgresql
-    #command: ["bash", "-c", "chmod +x /docker-entrypoint-initdb.d/init.sh && docker-entrypoint.sh postgres"]
     networks:
       - custom_bridge_network
 
 volumes:
   postgres-data:
   postgres-logs:
-  app-data:
+  typeorm-migrations:
+  prisma-migrations:
+  startup:
+  app-logs:
 
 networks:
   custom_bridge_network:

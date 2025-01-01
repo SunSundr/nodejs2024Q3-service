@@ -1,7 +1,8 @@
 services:
   app:
-    image: sunsundr/home-library-service-app:prod-watch
+    image: sunsundr/home-library-service-app:prod-final
     container_name: ${CONTAINER_NAME_APP}
+    env_file: .env
     environment:
       PORT: ${PORT}
       DATABASE_HOST: ${DATABASE_CONTAINER_HOST}
@@ -10,9 +11,19 @@ services:
       DATABASE_PASSWORD: ${DATABASE_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
       TYPEORM_DROPSCHEMA: ${TYPEORM_DROPSCHEMA}
-      TYPEORM_LOGGING: ${TYPEORM_LOGGING}
+      ORM_LOGGING: ${ORM_LOGGING}
       TYPEORM_SYNCHRONIZE: ${TYPEORM_SYNCHRONIZE}
-    restart: always
+      CRYPT_SALT: ${CRYPT_SALT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_SECRET_REFRESH_KEY: ${JWT_SECRET_REFRESH_KEY}
+      TOKEN_EXPIRE_TIME: ${TOKEN_EXPIRE_TIME}
+      TOKEN_REFRESH_EXPIRE_TIME: ${TOKEN_REFRESH_EXPIRE_TIME}
+      LOG_FILE_MAX_SIZE_KB: ${LOG_FILE_MAX_SIZE_KB}
+      LOG_LEVEL: ${LOG_LEVEL}
+      LOG_VERBOSE_STACK: ${LOG_VERBOSE_STACK}
+      ORM_TYPE: ${ORM_TYPE}
+      SWAGGER_USE_STATIC_SCHEMA: ${SWAGGER_USE_STATIC_SCHEMA}
+    restart: on-failure
     develop:
       watch:
         - action: rebuild
@@ -20,27 +31,26 @@ services:
           target: /app/src
           ignore:
             - node_modules/
-    env_file: .env
     ports:
       - "${PORT}:${PORT}"
     volumes:
-      - ./src:/app/src
-      - /app/node_modules
+      - startup:/app/startup
+      - app-logs:/app/logs
+      - prisma-migrations:/app/src/prisma/migrations
+      - typeorm-migrations:/app/src/typeorm/migrations
+      - /app/dist/typeorm/migrations # Anonymous volume for compiled files
     depends_on:
       - postgres
     networks:
       - custom_bridge_network
 
   postgres:
-    image: sunsundr/home-library-service-postgres:latest
+    image: sunsundr/home-library-service-postgres:prod-final
     container_name: ${CONTAINER_NAME_DB}
-    restart: always
+    restart: on-failure
     env_file: .env
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      DATABASE_USER: ${DATABASE_USER}
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_SCHEMA: ${DATABASE_SCHEMA}
     ports:
       - "${POSTGRES_PORT}:${DATABASE_PORT}"
     volumes:
@@ -52,6 +62,10 @@ services:
 volumes:
   postgres-data:
   postgres-logs:
+  typeorm-migrations:
+  prisma-migrations:
+  startup:
+  app-logs:
 
 networks:
   custom_bridge_network:

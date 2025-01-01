@@ -3,3 +3,7 @@ node_modules
 .env.example
 docker-compose.yml
 **/dockerfile
+src/typeorm/migrations/*
+!src/typeorm/migrations/
+src/prisma/migrations/**/*
+!src/prisma/migrations/

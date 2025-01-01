@@ -14,10 +14,11 @@ import { isUUID, validate } from 'class-validator';
 import { UpdateUserDto } from './user.dto';
 import { plainToClass } from 'class-transformer';
 import { ReqMethod } from '../common/utils/req-method.enum';
+import { USERS_REPOSITORY_TOKEN } from 'src/db/tokens';
 
 @Injectable()
 export class UserByIdInterceptor implements NestInterceptor {
-  constructor(@Inject('IUserRepository') private readonly userRepository: IUserRepository) {}
+  constructor(@Inject(USERS_REPOSITORY_TOKEN) private readonly userRepository: IUserRepository) {}
 
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<unknown>> {
     const request = context.switchToHttp().getRequest();

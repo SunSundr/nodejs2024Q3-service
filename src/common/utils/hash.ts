@@ -1,8 +1,9 @@
 import * as bcrypt from 'bcrypt';
 
+const saltRounds = parseInt(process.env.CRYPT_SALT || '10', 10);
+
 export function getHash(data: string | undefined): string | null {
   if (!data) return null;
-  const saltRounds = parseInt(process.env.CRYPT_SALT || '10', 10);
   return bcrypt.hashSync(data, saltRounds);
 }
 

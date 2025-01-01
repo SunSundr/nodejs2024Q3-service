@@ -1,93 +1,22 @@
-import {
-  Get,
-  Post,
-  Put,
-  Delete,
-  Body,
-  Request,
-  NotFoundException,
-  BadRequestException,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Get, Post, Put, Delete, Body, Request, HttpCode, HttpStatus } from '@nestjs/common';
 import { Request as ExpressRequest } from 'express';
-import { plainToClass } from 'class-transformer';
-import { ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
-import { UUID } from 'crypto';
+import { ApiOperation, ApiResponse, ApiParam, ApiBearerAuth } from '@nestjs/swagger';
 import { LibService } from './lib.service';
-import { isUUID, validate, ValidationError } from 'class-validator';
 import { LibModels, LibDtos, LibTypes } from '../db/lib.repo.interface';
 import { UniversalDTO } from './lib.base.dto';
-import { ReqMethod } from 'src/common/utils/req-method.enum';
 
-interface ValidateResult {
-  entity: LibTypes | null;
-  dto?: LibDtos;
-  errors?: ValidationError[];
-  userId: UUID | null;
-}
-
+@ApiBearerAuth()
 export abstract class LibBaseController {
   protected readonly owner: LibModels;
   protected readonly dtoClass: { new (): LibDtos };
 
   constructor(protected readonly libService: LibService) {}
 
-  protected async requestValidate(req: ExpressRequest): Promise<ValidateResult> {
-    const { id } = req.params as { id: UUID };
-    const userId = this.getUserId(req);
-
-    if (req.method !== ReqMethod.POST && !isUUID(id)) {
-      throw new BadRequestException('Invalid UUID');
-    }
-
-    let dto: LibDtos | undefined;
-
-    if (req.method !== ReqMethod.DELETE && req.method !== ReqMethod.GET) {
-      dto = plainToClass(this.dtoClass, req.body);
-      const errors = await validate(dto);
-
-      if (errors.length > 0) {
-        throw new BadRequestException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          error: 'Bad Request',
-          message: 'Validation failed',
-          errors: errors.map((error: ValidationError) => {
-            const children = error.children || {};
-            return {
-              property: error.property,
-              constraints: error.constraints,
-              ...children,
-            };
-          }),
-        });
-      }
-    }
-
-    let entity: LibTypes | null;
-
-    if (req.method !== ReqMethod.POST) {
-      entity = await this.libService.getById(this.owner, id, userId);
-
-      if (!entity) {
-        throw new NotFoundException(`Entity with id ${id} not found`);
-      }
-    } else {
-      entity = null;
-    }
-
-    return { entity, dto, userId };
-  }
-
-  protected getUserId(req: ExpressRequest): UUID | null {
-    return req['userId'] ? req['userId'] : null;
-  }
-
   @Get()
   @ApiOperation({ summary: 'Get all entities' })
   @ApiResponse({ status: HttpStatus.OK })
   async getAll(@Request() req: ExpressRequest): Promise<LibTypes[]> {
-    return await this.libService.getAll(this.owner, this.getUserId(req));
+    return await this.libService.getAll(this.owner, LibService.getUserId(req));
   }
 
   @Get(':id')
@@ -100,7 +29,7 @@ export abstract class LibBaseController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
   async getById(@Request() req: ExpressRequest): Promise<LibTypes> {
-    return (await this.requestValidate(req)).entity;
+    return (await this.libService.requestValidate(req, this.owner, this.dtoClass)).entity;
   }
 
   @Post()
@@ -115,7 +44,7 @@ export abstract class LibBaseController {
     description: 'Bad request, body is invalid or missing required fields',
   })
   async create(@Request() req: ExpressRequest, @Body() _: UniversalDTO): Promise<LibTypes> {
-    const { dto, userId } = await this.requestValidate(req);
+    const { dto, userId } = await this.libService.requestValidate(req, this.owner, this.dtoClass);
     return await this.libService.create(this.owner, dto, userId);
   }
 
@@ -133,8 +62,7 @@ export abstract class LibBaseController {
   })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
   async update(@Request() req: ExpressRequest, @Body() _: UniversalDTO): Promise<LibTypes> {
-    const { entity, dto } = await this.requestValidate(req);
-    if (!dto) throw new BadRequestException('Body is invalid');
+    const { entity, dto } = await this.libService.requestValidate(req, this.owner, this.dtoClass);
     return await this.libService.update(this.owner, entity, dto);
   }
 
@@ -149,7 +77,7 @@ export abstract class LibBaseController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Entity with ID not found' })
   @HttpCode(HttpStatus.NO_CONTENT)
   async delete(@Request() req: ExpressRequest): Promise<void> {
-    const { entity } = await this.requestValidate(req);
-    return this.libService.delete(this.owner, entity);
+    const { entity } = await this.libService.requestValidate(req, this.owner, this.dtoClass);
+    return await this.libService.delete(this.owner, entity);
   }
 }

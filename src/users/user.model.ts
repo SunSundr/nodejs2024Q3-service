@@ -1,15 +1,27 @@
-import { Entity, PrimaryColumn, Column, VersionColumn, BeforeInsert, BeforeUpdate } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  VersionColumn,
+  BeforeInsert,
+  BeforeUpdate,
+  Index,
+} from 'typeorm';
+import { user as PrismaUser } from '@prisma/client';
 import { UUID } from 'crypto';
 import { CreateUserDto, UpdateUserDto } from './user.dto';
 import { serialize } from '../common/utils/serialize';
 import { checkPassword, getHash } from 'src/common/utils/hash';
+import { toAppEntity, toPrismaEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class User {
   @PrimaryColumn('uuid')
   readonly id: UUID;
 
-  @Column({ unique: false })
+  // @Column({ unique: true })
+  @Column()
+  @Index({ unique: true })
   login: string;
 
   @Column('varchar', { length: 255, select: false })
@@ -24,6 +36,7 @@ export class User {
       to: (value: number) => value,
       from: (value: string) => Number(value),
     },
+    update: false,
   })
   readonly createdAt: number;
 
@@ -49,12 +62,23 @@ export class User {
     return new User(createDto.login, createDto.password);
   }
 
+  static createFromPrisma(prismaUser: PrismaUser): User {
+    const convert = {
+      ...prismaUser,
+      createdAt: Number(prismaUser.createdAt),
+      updatedAt: Number(prismaUser.updatedAt),
+    };
+    return toAppEntity(convert, this.prototype);
+  }
+
   updateFromDto(updateDto: UpdateUserDto): void {
-    this.login = updateDto.login || this.login;
+    if (updateDto.login) this.login = updateDto.login;
     const newPasswordHash = getHash(updateDto.newPassword);
-    if (newPasswordHash) this.password = newPasswordHash;
-    this.version++;
-    this.updatedAt = Date.now();
+    if (newPasswordHash) {
+      this.password = newPasswordHash;
+      this.version++;
+      this.updatedAt = Date.now();
+    }
   }
 
   @BeforeInsert()
@@ -65,12 +89,24 @@ export class User {
     }
   }
 
-  async checkPassword(newPassword: string): Promise<boolean> {
-    if (newPassword === this.password) return false;
-    return !(await checkPassword(newPassword, this.password));
+  async checkPassword(password: string): Promise<boolean | null> {
+    if (password === this.password) return true;
+    try {
+      return await checkPassword(password, this.password);
+    } catch (error) {
+      console.error(
+        'Error checking password:',
+        error instanceof Error ? error.message : 'Unknown error',
+      );
+      return null;
+    }
   }
 
   toJSON(): { [key: string]: unknown } {
     return serialize(this, ['password']);
+  }
+
+  toPrismaEntity(): PrismaUser {
+    return toPrismaEntity<PrismaUser>(this);
   }
 }

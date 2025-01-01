@@ -1,41 +1,47 @@
 import { NestFactory } from '@nestjs/core';
-import { Request, Response, NextFunction } from 'express';
-import { AppModule } from './app.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AppService } from './app.service';
+import { LogService } from './log/log.service';
 import { runSwagger } from './common/swagger/runSwagger';
 import { APP_NAME, SWAGGER_PATH } from './app.config';
 import { COLOR, colorString } from './common/utils/color';
-import { AppService } from './app.service';
-import { loadEnv } from './common/utils/load.env';
-import { LogService } from './log/log.service';
+import { OrmTypes, validateEnv } from './common/utils/validate.env';
+import { isRunningInContainer } from './common/utils/isRunningInContainer';
+import { migrationGenerate } from './typeorm/migration.generate';
 
 async function bootstrap() {
-  await loadEnv('PORT');
-  const port = process.env.PORT;
-
-  if (!port) {
-    console.error('PORT environment variable is not defined.');
-    process.exit(1);
+  if (!isRunningInContainer()) {
+    await ConfigModule.forRoot({ validate: validateEnv });
+    if (process.env.ORM_TYPE !== OrmTypes.MEMORY) {
+      await (
+        await import('./db/init')
+      ).default;
+      if (process.env.ORM_TYPE === OrmTypes.TYPEORM) {
+        migrationGenerate({ clearOldMigrations: true });
+      }
+    }
   }
-
+  const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
-  const logger = app.get(LogService);
-  app.useLogger(logger);
-
-  app.use((_req: Request, res: Response, next: NextFunction) => {
-    res.setHeader('Content-Type', 'application/json'); // 'text/html'
-    // res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    // res.setHeader('Pragma', 'no-cache');
-    // res.setHeader('Expires', '0');
-    // res.setHeader('Surrogate-Control', 'no-store');
-    next();
-  });
-
-  const appService = app.get(AppService);
-  appService.setApp(app);
-
   try {
-    runSwagger(app);
-    await app.listen(parseInt(port, 10));
+    const logger = app.get(LogService);
+    await logger.init();
+    app.useLogger(logger);
+
+    const configService = app.get(ConfigService);
+    const port = configService?.get('PORT');
+    if (!port) throw new Error('PORT environment variable is not defined.');
+
+    app.get(AppService)?.setApp(app);
+    runSwagger(app, configService);
+
+    await app.listen(port);
+
+    console.log(
+      colorString(COLOR.green, '[Main]'),
+      'ORM TYPE:',
+      colorString(COLOR.blue, configService.get('ORM_TYPE').toUpperCase()),
+    );
     console.log(
       '-'.repeat(80),
       `\n\uD83C\uDF10 ${APP_NAME} is running on: ${colorString(COLOR.cyan, await app.getUrl())}`,

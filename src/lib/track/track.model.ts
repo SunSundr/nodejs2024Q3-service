@@ -1,10 +1,12 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { track as PrismaTrack } from '@prisma/client';
+import { UUID } from 'crypto';
 import { BaseLibClass } from '../lib.base.model';
 import { TrackDto } from './track.dto';
 import { Artist } from '../artist/artist.model';
 import { Album } from '../album/album.model';
 import { serialize } from 'src/common/utils/serialize';
-import { UUID } from 'crypto';
+import { toAppEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class Track extends BaseLibClass {
@@ -23,11 +25,11 @@ export class Track extends BaseLibClass {
   // relations
   @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'artistId' })
-  public artist: null;
+  public artist: Artist | null;
 
   @ManyToOne(() => Album, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'albumId' })
-  public album: null;
+  public album: Album | null;
 
   private constructor(
     userId: UUID | null,
@@ -53,6 +55,10 @@ export class Track extends BaseLibClass {
     );
   }
 
+  static createFromPrisma(prismaTrack: PrismaTrack): Track {
+    return toAppEntity(prismaTrack, this.prototype);
+  }
+
   updateFromDto(updateDto: TrackDto): void {
     Object.assign(this, {
       name: updateDto.name ?? this.name,
@@ -63,6 +69,6 @@ export class Track extends BaseLibClass {
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite', 'artist', 'album']);
+    return serialize(this, ['user', 'userId', 'favorite', 'artist', 'album']);
   }
 }

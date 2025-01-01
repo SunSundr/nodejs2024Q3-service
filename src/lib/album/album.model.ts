@@ -1,9 +1,11 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { album as PrismaAlbum } from '@prisma/client';
+import { UUID } from 'crypto';
 import { BaseLibClass } from '../lib.base.model';
 import { AlbumDto } from './album.dto';
 import { Artist } from '../artist/artist.model';
 import { serialize } from 'src/common/utils/serialize';
-import { UUID } from 'crypto';
+import { toAppEntity } from 'src/prisma/prisma.converter';
 
 @Entity()
 export class Album extends BaseLibClass {
@@ -19,7 +21,7 @@ export class Album extends BaseLibClass {
   // relations
   @ManyToOne(() => Artist, { nullable: true, onDelete: 'SET NULL' })
   @JoinColumn({ name: 'artistId' })
-  public artist: null;
+  public artist: Artist | null;
 
   private constructor(
     userId: UUID | null,
@@ -37,6 +39,10 @@ export class Album extends BaseLibClass {
     return new Album(userId, createDto.name, createDto.year, createDto.artistId);
   }
 
+  static createFromPrisma(prismaAlbum: PrismaAlbum): Album {
+    return toAppEntity(prismaAlbum, this.prototype);
+  }
+
   updateFromDto(updateDto: AlbumDto): void {
     Object.assign(this, {
       name: updateDto.name ?? this.name,
@@ -46,6 +52,6 @@ export class Album extends BaseLibClass {
   }
 
   toJSON(): { [key: string]: unknown } {
-    return serialize(this, ['userId', 'favorite', 'artist']);
+    return serialize(this, ['user', 'userId', 'favorite', 'artist']);
   }
 }

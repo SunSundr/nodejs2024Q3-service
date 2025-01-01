@@ -134,8 +134,8 @@ paths:
                     type: string
               example:
                 ApiController:
-                  - "[GET] /api/doc/doc"
-                  - "[GET] /api/doc/doc-json"
+                  - "[GET] /api/doc"
+                  - "[GET] /api/doc-json"
   /auth/signup:
     post:
       tags:
@@ -169,8 +169,8 @@ paths:
           description: Successful signup
         400:
           description: Bad request
-        # 409:
-        #   description: Conflict. Login already exists
+        409:
+          description: Conflict. Login already exists
   /auth/login:
     post:
       tags:
@@ -195,10 +195,16 @@ paths:
               required:
                 - user
                 - login
+      responses:
+        201:
+          description: Successful signup
+        403:
+          description: Forbidden - Login already exists
   /auth/refresh:
     post:
       tags:
         - Auth
+      security: []
       summary: Refresh JWT-token
       description: Refresh the JWT-token using a valid refresh token.
       requestBody:

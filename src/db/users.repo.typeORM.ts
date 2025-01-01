@@ -1,14 +1,25 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Provider } from '@nestjs/common';
+import { Repository, DataSource } from 'typeorm';
 import { UUID } from 'crypto';
 import { User } from '../users/user.model';
 import { IUserRepository } from './users.repo.interface';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { UpdateUserDto } from 'src/users/user.dto';
+import { USERS_REPOSITORY_TOKEN } from './tokens';
 
 @Injectable()
 export class UserTypeOrmRepository extends Repository<User> implements IUserRepository {
-  constructor(@InjectRepository(User) private readonly userRepository: Repository<User>) {
+  private static instance: UserTypeOrmRepository;
+  static provider(): Provider {
+    return {
+      provide: USERS_REPOSITORY_TOKEN,
+      inject: [DataSource],
+      useFactory: (dataSource: DataSource) =>
+        this.instance ||
+        (this.instance = new UserTypeOrmRepository(dataSource.getRepository(User))),
+    };
+  }
+
+  constructor(private readonly userRepository: Repository<User>) {
     super(User, userRepository.manager);
   }
 
@@ -22,7 +33,7 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     return user;
   }
 
-  async getUserWithPasswordById(id: UUID): Promise<Partial<User>> {
+  async getUserWithPasswordById(id: UUID): Promise<User | null> {
     const user = await this.userRepository
       .createQueryBuilder('user')
       .addSelect('user.password')
@@ -31,7 +42,7 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
     return user;
   }
 
-  async getById(id: UUID): Promise<User | undefined> {
+  async getById(id: UUID): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id } });
   }
 
@@ -41,10 +52,14 @@ export class UserTypeOrmRepository extends Repository<User> implements IUserRepo
 
   async deleteByID(id: UUID): Promise<void> {
     await this.userRepository.delete(id);
-    return;
   }
 
-  async getByLogin(login: string): Promise<User | undefined> {
-    return this.userRepository.findOne({ where: { login } });
+  async getByLogin(login: string): Promise<User | null> {
+    const user = await this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.login = :login', { login })
+      .getOne();
+    return user;
   }
 }

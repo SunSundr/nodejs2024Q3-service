@@ -1,33 +1,24 @@
-FROM node:22.9-alpine
+ARG ALPINE_VERSION=3.21
 
+FROM node:23.5-alpine${ALPINE_VERSION} AS builder
 WORKDIR /app
 
-COPY package.init.cjs package.json tsconfig.json tsconfig.build.json nest-cli.json jest.config.json ./
+COPY package*.json package.init.cjs tsconfig.json tsconfig.build.json .cleanmodules ./
 COPY src ./src
-COPY test ./test
+
+RUN node package.init.cjs && npm ci && npm run build && npm ci --omit=dev \
+  && npx clean-modules --directory /app/node_modules --glob-file /app/.cleanmodules --yes --no-defaults
+
+FROM node:23.5-alpine${ALPINE_VERSION}
+WORKDIR /app
+
+COPY package*.json ./
 COPY doc ./doc
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY src/prisma/schema.prisma ./src/prisma/schema.prisma
+COPY docker/app/init.sh ./startup/
 
-RUN node package.init.cjs && npm install && npm cache clean --force && npm run build
+RUN npm config set update-notifier false && chmod +x ./startup/init.sh
 
-CMD npm run start:dev
-
-# COMPACT VARIANT (436 Mb):
-# ------------------------------------------------
-# FROM node:22.9-alpine AS build
-
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci
-
-# COPY src ./src
-# COPY tsconfig.json tsconfig.build.json ./
-# RUN npm run build
-
-# FROM node:22.9-alpine
-# WORKDIR /app
-# COPY package*.json ./
-# RUN npm ci --omit=dev --frozen-lockfile
-
-# COPY --from=build /app/dist ./dist
-# COPY doc ./doc
-# CMD ["node", "dist/main.js"]
+CMD ["sh", "./startup/init.sh"]

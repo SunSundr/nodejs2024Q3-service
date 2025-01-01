@@ -8,8 +8,6 @@ import {
   Body,
   Request,
   ParseUUIDPipe,
-  NotFoundException,
-  ForbiddenException,
   UsePipes,
   HttpCode,
   ValidationPipe,
@@ -21,13 +19,21 @@ import { CreateUserDto, UpdateUserDto, OutputUserDTO } from './user.dto';
 import { UserByIdInterceptor } from './user-by-id.interceptor';
 import { UUID } from 'crypto';
 import { User } from './user.model';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiBody,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 
 export interface RequestWithUser extends Request {
   user: User;
 }
 
 @ApiTags('Users')
+@ApiBearerAuth()
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -47,9 +53,7 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid ID format' })
   async getUserById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: UUID): Promise<User> {
-    const user = await this.usersService.getById(id);
-    if (!user) throw new NotFoundException('User not found');
-    return user;
+    return await this.usersService.getById(id);
   }
 
   @Post()
@@ -63,8 +67,7 @@ export class UsersController {
   })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid request body' })
   async create(@Body() createUserDto: CreateUserDto): Promise<User> {
-    const user = await this.usersService.createUser(createUserDto);
-    return user;
+    return await this.usersService.createUser(createUserDto);
   }
 
   @Put(':id')
@@ -90,10 +93,6 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @Request() req: RequestWithUser,
   ): Promise<User> {
-    const { user } = req;
-    if (!(await user.checkPassword(updateUserDto.newPassword))) {
-      throw new ForbiddenException('New password must be different from the current password');
-    }
     return await this.usersService.updateUser(req.user, updateUserDto);
   }
 
@@ -106,6 +105,6 @@ export class UsersController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Invalid ID format' })
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found' })
   async deleteUser(@Request() req: RequestWithUser): Promise<boolean> {
-    return this.usersService.delete(req.user);
+    return await this.usersService.delete(req.user);
   }
 }
